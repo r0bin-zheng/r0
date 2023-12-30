@@ -8,6 +8,7 @@ from PIL import Image
 
 class Algorithm_Impl:
     def __init__(self, dim, size, iter_max, range_min_list, range_max_list):
+
         # 维度
         self.dim = dim
         # 种群大小
@@ -37,6 +38,7 @@ class Algorithm_Impl:
         self.iteration()
         end_time = time.time()
         print(f"运行时间: {end_time - start_time}")
+        self.save_result()
 
     def init(self):
         self.position_best = np.zeros(self.dim)
@@ -91,8 +93,48 @@ class Algorithm_Impl:
         position_tmp[position > max_list] = position_rand[position > max_list]
         return position_tmp
     
+    def save_result(self):
+        import time
+        """保存self.value_best_history、self.position_best_history、self.value_best、self.position_best到result.txt"""
+        # np.savetxt(f'result.txt', np.array([self.value_best_history, self.position_best_history, self.value_best, self.position_best]), delimiter=',')
+        # print(f"save data to result.txt")
+
+        with open('result.txt', 'w') as f:
+
+            # str_time = time.strftime("%Y-%m-%d %H:%M:%S", self.time)
+
+            # f.write(
+            #     f"--------------------------------------Info--------------------------------------\n")
+            # f.write(f"ID: {self.id}\n")
+            # f.write(f"Path: {self.path}\n")
+            # f.write(f"Time: {str_time}\n")
+            # f.write(f"Success: {self.success}\n")
+
+            # f.write(
+            #     f"--------------------------------------Problem--------------------------------------\n")
+            # f.write(f"Problem: {self.problem_name}\n")
+            # f.write(f"Number of objects: {self.n_obj}\n")
+            # f.write(f"Number of variables: {self.n_var}\n")
+
+            # f.write(
+            #     f"--------------------------------------Algorithm--------------------------------------\n")
+            # f.write(f"Algorithm choice: {self.alg}\n")
+            # f.write(f"Phase list: {self.phase_list} ({phases})\n")
+            # f.write(f"Phase strategy: {strategy_list[self.strategy]}\n")
+            # f.write(f"First phase rate: {self.rate}\n")
+            # f.write(f"Population size: {self.mu}\n")
+            # f.write(f"Maximum number of function evaluations: {self.max_fe}\n")
+
+            f.write(
+                f"--------------------------------------Result--------------------------------------\n")
+            f.write(f"value_best: {self.value_best}\n")
+            f.write(f"position_best: {self.position_best}\n")
+
+            f.write(f"history:\n")
+            for i in range(len(self.value_best_history)):
+                f.write(f"{i + 1}: {self.position_best_history[i]} {self.value_best_history[i]}\n")
     
-    def draw2_gif(self, step, is_save, name):
+    def draw2_gif1(self, step, is_save, name):
         if self.dim < 2:
             print('维度太低，无法绘制图像')
             return
@@ -102,7 +144,7 @@ class Algorithm_Impl:
         images = []
 
         for i in range(1, self.iter_max + 1):
-            print("draw 2d gif iter: ", i)
+            # print("draw 2d gif iter: ", i)
             if i % step > 0 and i > 1:
                 continue
 
@@ -127,14 +169,75 @@ class Algorithm_Impl:
                 images.append(img)
                 if images:
                     filename = f"{name}_2d.gif"
-                    images[0].save(filename, save_all=True, append_images=images[1:], loop=0, duration=100)
+                    images[0].save(filename, save_all=True, append_images=images[1:], loop=0, duration=200)
+                buf.close()
+
+            plt.close()
+
+        print("draw 2d gif done.")
+        # if is_save and images:
+        #     filename = f"{name}_2d.gif"
+        #     images[0].save(filename, save_all=True, append_images=images[1:], loop=0, duration=100)
+
+    def draw2_gif(self, step, is_save, name):
+        if self.dim < 2:
+            print('维度太低，无法绘制图像')
+            return
+        if step < 1:
+            step = 1
+
+        images = []
+
+        # 创建绘制函数深度图的网格数据
+        x = np.linspace(self.range_min_list[0], self.range_max_list[0], 100)
+        y = np.linspace(self.range_min_list[1], self.range_max_list[1], 100)
+        X, Y = np.meshgrid(x, y)
+        Z = np.zeros_like(X)
+        for i in range(X.shape[0]):
+            for j in range(X.shape[1]):
+                Z[i, j] = self.fitfunction(np.array([X[i, j], Y[i, j]]))
+
+        for i in range(1, self.iter_max + 1):
+            if i % step > 0 and i > 1:
+                continue
+
+            plt.figure(figsize=(8, 6))
+            # 绘制函数的深度图
+            plt.imshow(Z, extent=[self.range_min_list[0], self.range_max_list[0], 
+                                self.range_min_list[1], self.range_max_list[1]],
+                    origin='lower', cmap='viridis', alpha=0.7)
+            plt.colorbar()  # 显示颜色条
+
+            for s in range(self.size):
+                cur_position = self.unit_list[s].position_history_list[i-1, :]
+                plt.scatter(cur_position[0], cur_position[1], 10, 'b')  # 保持原来的散点样式
+
+            # 设置图形范围和比例
+            range_size_x = self.range_max_list[0] - self.range_min_list[0]
+            range_size_y = self.range_max_list[1] - self.range_min_list[1]
+            plt.axis([self.range_min_list[0] - 0.2 * range_size_x, self.range_max_list[0] + 0.2 * range_size_x,
+                    self.range_min_list[1] - 0.2 * range_size_y, self.range_max_list[1] + 0.2 * range_size_y])
+            plt.text(self.range_min_list[0], self.range_max_list[1], str(i), fontsize=20)
+            plt.gca().set_aspect('equal', adjustable='box')
+
+            if is_save:
+                buf = io.BytesIO()
+                plt.savefig(buf, format='png')
+                buf.seek(0)
+                img = Image.open(buf)
+                images.append(img)
+                if images:
+                    filename = f"{name}_2d.gif"
+                    images[0].save(filename, save_all=True, append_images=images[1:], loop=0, duration=200)
                 buf.close()
 
             plt.close()
 
         # if is_save and images:
         #     filename = f"{name}_2d.gif"
-        #     images[0].save(filename, save_all=True, append_images=images[1:], loop=0, duration=100)
+        #     images[0].save(filename, save_all=True, append_images=images[1:], loop=0, duration=200)
+            
+        print("draw 2d gif done.")
 
 
     def draw3_gif(self, step, is_save, name):

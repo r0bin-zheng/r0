@@ -10,8 +10,6 @@ class Unit:
     
     def save(self):
         if self.position_history_list.size == 0:
-            # dim = len(self.position)
-            # self.position_history_list.reshape(0, dim)
             self.position_history_list = np.append(self.position_history_list, self.position)
         else:
             self.position_history_list = np.vstack((self.position_history_list, self.position))

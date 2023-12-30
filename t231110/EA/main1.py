@@ -7,7 +7,34 @@ from algs.base.problem import get_problem_detail
 from algs.utils import get_alg
 
 
+def get_id():
+    """根据日期时间生成id"""
+
+    # 格式：YYYYMMDDHHMMSS_XXXXX
+    # 其中 XXXXX 为随机字符串
+
+    import time
+    import random
+    import string
+
+    # 日期时间
+    date_time = time.strftime("%Y%m%d%H%M%S", time.localtime())
+
+    # 随机字符串
+    random_str = ''.join(random.sample(string.ascii_letters + string.digits, 5))
+
+    # 拼接
+    id = f'{date_time}_{random_str}'
+    return id
+
+
 def run_task(problem="F12022", alg="DE", dim=2):
+
+    # 在exp文件夹下生成一个以id命名的文件夹
+    id = get_id()
+    import os
+    os.mkdir(f'exp/{id}')
+    os.chdir(f'exp/{id}')
 
     # 选择测试函数
     function_name = problem
@@ -18,11 +45,11 @@ def run_task(problem="F12022", alg="DE", dim=2):
 
     # 算法实例化
     size = 50
-    iter_max = 300
+    iter_max = 200
     range_max_list = np.ones(dim) * ub
     range_min_list = np.ones(dim) * lb
 
-    # 实例化差分进化算法类
+    # 实例化算法类
     Alg_Class = get_alg(alg)
     base = Alg_Class(dim, size, iter_max, range_min_list, range_max_list)
     base.is_cal_max = False
