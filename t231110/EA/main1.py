@@ -65,9 +65,9 @@ def run_task(problem="F12022", alg="DE", dim=2):
 
 
 def main():
-    problem = "F12022"
+    problem = "F92022"
     ndim = 2
-    alg = "DE"
+    alg = "FWA_Impl"
     run_task(problem, alg, ndim)
 
 

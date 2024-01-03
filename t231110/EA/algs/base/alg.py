@@ -1,6 +1,7 @@
 """优化算法基类"""
 
 import io
+import time
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -32,7 +33,6 @@ class Algorithm_Impl:
         self.position_best_history = []
 
     def run(self):
-        import time
         start_time = time.time()
         self.init()
         self.iteration()
@@ -228,7 +228,7 @@ class Algorithm_Impl:
                 images.append(img)
                 if images:
                     filename = f"{name}_2d.gif"
-                    images[0].save(filename, save_all=True, append_images=images[1:], loop=0, duration=200)
+                    images[0].save(filename, save_all=True, append_images=images[1:], loop=0, duration=300)
                 buf.close()
 
             plt.close()
