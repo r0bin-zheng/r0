@@ -57,6 +57,7 @@ def run_task(problem="F12022", alg="DE", dim=2):
 
     # 运行
     base.run()
+    base.save_result()
     print("call fitness func times: ", base.cal_fit_num)
 
     # 绘制2D和3D图像
@@ -65,9 +66,9 @@ def run_task(problem="F12022", alg="DE", dim=2):
 
 
 def main():
-    problem = "F92022"
+    problem = "F12022"
     ndim = 2
-    alg = "FWA_Impl"
+    alg = "DE"
     run_task(problem, alg, ndim)
 
 

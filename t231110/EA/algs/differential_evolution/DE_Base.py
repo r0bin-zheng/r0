@@ -13,16 +13,17 @@ class DE_Base(Algorithm_Impl):
         self.cross_rate = 0.3
         self.alter_factor = 0.5
         self.unit_list = []
+        self.unit_class = DE_Unit
 
     def init(self):
         super().init()
-        for i in range(self.size):
+        for i in range(self.size - len(self.unit_list)):
             unit = DE_Unit()
             unit.position = np.random.uniform(self.range_min_list, self.range_max_list)
             unit.position_new = unit.position.copy()
             unit.fitness = self.cal_fitfunction(unit.position)
             self.unit_list.append(unit)
-        self.print_unit_list()
+        # self.print_unit_list()
 
     def update(self, iter):
         super().update(iter)

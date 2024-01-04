@@ -1,10 +1,16 @@
 """代理模型工厂类"""
+import numpy as np
 from smt.surrogate_models import KRG, RBF, KPLS
 
 def get_surrogate_model(name):
     if name == None or name == "":
         return None
     return surrogate_list[name]
+
+def predict_value(self, X):
+    X_ = np.array([X])
+    y = self.predict_values(X_)[0][0]
+    return y
 
 surrogate_list = {
     "kriging": KRG,
@@ -49,7 +55,12 @@ class SurrogateFactory:
                       print_solver=self.setting["print_solver"])
         sm.set_training_values(X, y)
         sm.train()
+        # sm.fit_one = predict_value
+        setattr(sm, 'fit_one', predict_value.__get__(sm))
+
+
         return sm
 
     def _get_surrogate_model_class(self, name):
         return get_surrogate_model(name)
+    

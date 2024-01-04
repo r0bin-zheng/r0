@@ -1,4 +1,6 @@
 """优化算法基类"""
+import sys
+sys.path.append(r"/home/robin/projects/t231101/t231110")
 
 import io
 import time
@@ -6,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from PIL import Image
+from EA.algs.base.unit import Unit
 
 class Algorithm_Impl:
     def __init__(self, dim, size, iter_max, range_min_list, range_max_list):
@@ -25,6 +28,9 @@ class Algorithm_Impl:
         self.fitfunction = None
         # 适应度函数调用计数
         self.cal_fit_num = 0
+        # 是否静默
+        self.silence = False
+        self.unit_class = Unit
 
         # 初始化
         self.position_best = np.zeros(self.dim)
@@ -37,8 +43,10 @@ class Algorithm_Impl:
         self.init()
         self.iteration()
         end_time = time.time()
-        print(f"运行时间: {end_time - start_time}")
-        self.save_result()
+        self.time_cost = end_time - start_time
+        if not self.silence:
+            # self.print_result()
+            print(f"运行时间: {end_time - start_time}")
 
     def init(self):
         self.position_best = np.zeros(self.dim)
@@ -57,18 +65,20 @@ class Algorithm_Impl:
                 self.position_best = self.unit_list[i].position
             self.unit_list[i].save()
 
-        print(f"第 {iter} 代")
+        if not self.silence:
+            print(f"第 {iter} 代")
         if self.is_cal_max:
             self.value_best_history.append(self.value_best)
-            print(f"最优值= {self.value_best}")
+            if not self.silence:
+                print(f"最优值= {self.value_best}")
         else:
             self.value_best_history.append(-self.value_best)
-            print(f"最优值= {-self.value_best}")
+            if not self.silence:
+                print(f"最优值= {-self.value_best}")
 
         self.position_best_history.append(self.position_best)
-        print(f"最优解= {self.position_best}")
-
-
+        if not self.silence:
+            print(f"最优解= {self.position_best}")
 
     def cal_fitfunction(self, position):
         if self.fitfunction is None:
@@ -93,12 +103,21 @@ class Algorithm_Impl:
         position_tmp[position > max_list] = position_rand[position > max_list]
         return position_tmp
     
+    def set_unit_list(self, unit_list):
+        self.unit_list = []
+        for i in range(len(unit_list)):
+            if i >= self.size:
+                break
+            unit = self.unit_class()
+            unit.position = unit_list[i].position.copy()
+            # print("position: ", unit.position, "shape: ", unit.position.shape)
+            unit.fitness = self.fitfunction(X=unit.position)
+            # print("fitness: ", unit.fitness)
+            self.unit_list.append(unit)
+    
     def save_result(self):
         import time
         """保存self.value_best_history、self.position_best_history、self.value_best、self.position_best到result.txt"""
-        # np.savetxt(f'result.txt', np.array([self.value_best_history, self.position_best_history, self.value_best, self.position_best]), delimiter=',')
-        # print(f"save data to result.txt")
-
         with open('result.txt', 'w') as f:
 
             # str_time = time.strftime("%Y-%m-%d %H:%M:%S", self.time)
