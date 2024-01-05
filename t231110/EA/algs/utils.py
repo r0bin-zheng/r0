@@ -1,10 +1,11 @@
 import sys
-sys.path.append(r"/home/robin/projects/t231101/t231110/EA")
+sys.path.append(r"/home/robin/projects/t231101/t231110")
 
-from algs.algorithm_fireworks.FWA_Base import FWA_Base
-from algs.algorithm_fireworks.FWA_Impl import FWA_Impl
-from algs.differential_evolution.DE_Base import DE_Base
-from algs.differential_evolution.DE_Impl import DE_Impl
+from EA.algs.algorithm_fireworks.FWA_Base import FWA_Base
+from EA.algs.algorithm_fireworks.FWA_Impl import FWA_Impl
+from EA.algs.differential_evolution.DE_Base import DE_Base
+from EA.algs.differential_evolution.DE_Impl import DE_Impl
+from SAEA.algs.fwa_surr.FWA_Surr_Base import FWA_Surr
 
 
 alg_dict = {
@@ -12,6 +13,7 @@ alg_dict = {
     "DE_Impl": DE_Impl,
     "FWA": FWA_Base,
     "FWA_Impl": FWA_Impl,
+    "FWA_Surr": FWA_Surr,
 }
 
 def get_alg(name):

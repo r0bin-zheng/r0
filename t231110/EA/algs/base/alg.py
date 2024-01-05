@@ -81,6 +81,9 @@ class Algorithm_Impl:
             print(f"最优解= {self.position_best}")
 
     def cal_fitfunction(self, position):
+        """
+        计算适应度函数值，对于最大化问题，返回值不变；对于最小化问题，返回值取相反数
+        """
         if self.fitfunction is None:
             value = 0
         else:

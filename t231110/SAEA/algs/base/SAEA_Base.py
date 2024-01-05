@@ -33,14 +33,18 @@ class SAEA_Base:
         self.iter_num = 0
         self.cal_fit_num = 0
         self.unit_list = []
+        self.surr_type = surr_type
         self.surr_factory = SurrogateFactory([surr_type], surr_setting)
+        self.ea_type = ea_type
         self.ea_factory = Ea_Factory(ea_type, dim, pop_size, iter_max, range_min_list, range_max_list, is_cal_max)
         self.surr = None
         self.surr_history = []
+        self.fitfunction_name = None
         self.fitfunction = None
         self.unit_new = []
 
         self.value_best = None
+        self.value_best_history = []
         self.position_best = None
         self.time_cost = None
 
@@ -106,8 +110,8 @@ class SAEA_Base:
             y.append(unit.fitness_true)
         X= np.array(X)
         y = np.array(y)
-        print("X: ", X)
-        print("y: ", y)
+        # print("X: ", X)
+        # print("y: ", y)
         self.surr = self.surr_factory.get_sm(X, y)
         self.surr_history.append(self.surr)
 
@@ -122,6 +126,7 @@ class SAEA_Base:
         unit.fitness = ea.value_best
         self.unit_new = [unit]
         print("unit_new position: ", unit.position, " fitness: ", unit.fitness)
+        ea.draw2_gif(10, True, f"SAEA_iter{self.iter_num}")
 
     def merge(self):
         for ind in self.unit_new:
@@ -130,6 +135,7 @@ class SAEA_Base:
             if ind.fitness_true > self.value_best:
                 self.value_best = ind.fitness_true
                 self.position_best = ind.position.copy()
+        self.value_best_history.append(self.value_best)
 
     def select(self):
         """
@@ -174,9 +180,24 @@ class SAEA_Base:
         self.save_result()
         self.draw_fit_2d_gif(10, True, self.name)
         self.draw_surr_2d_gif(10, True, self.name)
+        self.draw_value_best()
 
     def save_result(self):
         with open('result.txt', 'w') as f:
+            f.write(f"--------------------------------------Info--------------------------------------\n")
+            f.write(f"alg: {self.name}\n")
+            f.write(f"problem: {self.fitfunction_name}\n")
+            f.write(f"dim: {self.dim}\n")
+            f.write(f"init_size: {self.init_size}\n")
+            f.write(f"pop_size: {self.pop_size}\n")
+            f.write(f"fit_max: {self.fit_max}\n")
+            # f.write(f"iter_max: {self.iter_max}\n")
+            f.write(f"range_min_list: {self.range_min_list}\n")
+            f.write(f"range_max_list: {self.range_max_list}\n")
+            f.write(f"is_cal_max: {self.is_cal_max}\n")
+            f.write(f"surr_type: {self.surr_type}\n")
+            f.write(f"ea_type: {self.ea_type}\n")
+
             f.write(
                 f"--------------------------------------Result--------------------------------------\n")
             f.write(f"value_best: {self.value_best}\n")
@@ -304,3 +325,23 @@ class SAEA_Base:
             plt.close()
             
         print("draw pop surr 2d gif at ", name + "_surr_2d.gif")
+
+    def draw_value_best(self):
+        """
+        绘制value_best收敛曲线
+        """
+        value_best_history_copy = self.value_best_history.copy()
+        if self.is_cal_max == False:
+            value_best_history_copy = -np.array(value_best_history_copy)
+
+        plt.figure(figsize=(8, 6))
+        plt.plot(value_best_history_copy)
+        plt.xlabel('iter')
+        plt.ylabel('value_best')
+        plt.title('value_best')
+        if self.save_flag:
+            plt.savefig(f"{self.name}_value_best.png")
+        else:
+            plt.show()
+
+        print("draw value_best at ", self.name + "_value_best.png")

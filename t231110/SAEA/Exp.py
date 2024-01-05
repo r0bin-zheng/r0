@@ -38,7 +38,7 @@ class Exp:
         init_size = 50
         pop_size = 50
         surr_type = "kriging"
-        ea_type = "DE"
+        ea_type = "FWA_Impl"
         fit_max = 100
         iter_max = 50
         range_max_list = np.ones(dim) * ub
@@ -55,6 +55,7 @@ class Exp:
         self.alg = alg_class(dim, init_size, pop_size, surr_type, ea_type, fit_max,
                         iter_max, range_min_list, range_max_list, is_cal_max, surr_setting)
         self.alg.fitfunction = fobj
+        self.alg.fitfunction_name = self.problem_name
 
     def solve(self):
         self.init()

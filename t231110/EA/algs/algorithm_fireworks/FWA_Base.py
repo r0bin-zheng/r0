@@ -38,6 +38,7 @@ class FWA_Base(Algorithm_Impl):
         self.select_sparks()
 
     def obtain_spark(self, id):
+        """生成正常火星"""
         num_sparks = self.get_spark_num(id)
         amplitude = self.get_spark_amplitude(id)
         for n in range(num_sparks):
@@ -53,6 +54,7 @@ class FWA_Base(Algorithm_Impl):
             self.all_list.append(spark)
 
     def obtain_spec_spark(self, id):
+        """生成特殊火星"""
         pos = self.unit_list[id].position.copy()
         for d in range(self.dim):
             if np.random.rand() < 0.5:
@@ -65,6 +67,7 @@ class FWA_Base(Algorithm_Impl):
         self.all_list.append(spec_spark)
 
     def select_sparks(self):
+        """选择火星"""
         self.all_list.extend(self.unit_list)
         values = np.array([unit.fitness for unit in self.all_list])
         max_value_id = np.argmax(values)
@@ -85,6 +88,7 @@ class FWA_Base(Algorithm_Impl):
         self.all_list = []
 
     def get_spark_num(self, id):
+        """计算火星数量"""
         value_min = min(unit.fitness for unit in self.unit_list)
         value_sum = sum(unit.fitness for unit in self.unit_list)
         value = self.unit_list[id].fitness
@@ -94,6 +98,7 @@ class FWA_Base(Algorithm_Impl):
         return num
 
     def get_spark_amplitude(self, id):
+        """计算烟花振幅"""
         value_max = max(unit.fitness for unit in self.unit_list)
         value_sum = sum(unit.fitness for unit in self.unit_list)
         value = self.unit_list[id].fitness
