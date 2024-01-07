@@ -28,18 +28,19 @@ class Exp:
         os.mkdir(self.save_path)
         os.chdir(self.save_path)
 
-        lb, ub, dim, fobj = get_problem_detail(self.problem_name)
+        dim = 2
+
+        lb, ub, dim, fobj = get_problem_detail(self.problem_name, ndim=dim)
         print(f'测试函数：{self.problem_name}')
         print(f'搜索空间：{lb} ~ {ub}')
         print(f'维度：{dim}')
-        self.problem = fobj
 
-        dim = 2
-        init_size = 50
-        pop_size = 50
+        self.problem = fobj
+        init_size = 100
+        pop_size = 100
         surr_type = "kriging"
         ea_type = "FWA_Impl"
-        fit_max = 100
+        fit_max = 176
         iter_max = 50
         range_max_list = np.ones(dim) * ub
         range_min_list = np.ones(dim) * lb

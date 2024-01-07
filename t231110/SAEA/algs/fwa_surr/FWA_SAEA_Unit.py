@@ -6,3 +6,4 @@ from SAEA.algs.base.SAEA_Unit import SAEA_Unit
 class FWA_SAEA_Unit(SAEA_Unit):
     def __init__(self):
         super().__init__()
+        self.uncertainty = None

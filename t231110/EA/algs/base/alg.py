@@ -45,7 +45,6 @@ class Algorithm_Impl:
         end_time = time.time()
         self.time_cost = end_time - start_time
         if not self.silence:
-            # self.print_result()
             print(f"运行时间: {end_time - start_time}")
 
     def init(self):
@@ -113,9 +112,7 @@ class Algorithm_Impl:
                 break
             unit = self.unit_class()
             unit.position = unit_list[i].position.copy()
-            # print("position: ", unit.position, "shape: ", unit.position.shape)
             unit.fitness = self.fitfunction(X=unit.position)
-            # print("fitness: ", unit.fitness)
             self.unit_list.append(unit)
     
     def save_result(self):
@@ -166,13 +163,11 @@ class Algorithm_Impl:
         images = []
 
         for i in range(1, self.iter_max + 1):
-            # print("draw 2d gif iter: ", i)
             if i % step > 0 and i > 1:
                 continue
 
             plt.figure(figsize=(8, 6))
             for s in range(self.size):
-                # print(self.unit_list[s].position_history_list)
                 cur_position = self.unit_list[s].position_history_list[i-1, :]
                 plt.scatter(cur_position[0], cur_position[1], 10, 'b')
 
@@ -197,11 +192,8 @@ class Algorithm_Impl:
             plt.close()
 
         print("draw 2d gif done.")
-        # if is_save and images:
-        #     filename = f"{name}_2d.gif"
-        #     images[0].save(filename, save_all=True, append_images=images[1:], loop=0, duration=100)
 
-    def draw2_gif(self, step, is_save, name):
+    def draw2_gif(self, step, is_save, name, is_cal_max=None):
         if self.dim < 2:
             print('维度太低，无法绘制图像')
             return
@@ -209,6 +201,8 @@ class Algorithm_Impl:
             step = 1
 
         images = []
+        flag = is_cal_max if is_cal_max is not None else self.is_cal_max
+        t = 1 if flag else -1
 
         # 创建绘制函数深度图的网格数据
         x = np.linspace(self.range_min_list[0], self.range_max_list[0], 100)
@@ -217,7 +211,7 @@ class Algorithm_Impl:
         Z = np.zeros_like(X)
         for i in range(X.shape[0]):
             for j in range(X.shape[1]):
-                Z[i, j] = self.fitfunction(np.array([X[i, j], Y[i, j]]))
+                Z[i, j] = self.fitfunction(np.array([X[i, j], Y[i, j]])) * t
 
         for i in range(1, self.iter_max + 1):
             if i % step > 0 and i > 1:

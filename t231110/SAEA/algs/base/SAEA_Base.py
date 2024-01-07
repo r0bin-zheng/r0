@@ -208,7 +208,6 @@ class SAEA_Base:
                 f.write(f"#{i} {self.unit_list[i].position} -- {self.unit_list[i].fitness_true if self.is_cal_max else -self.unit_list[i].fitness_true}\n")
         print("save result at result.txt")
     
-
     def draw_fit_2d_gif(self, step, is_save, name=None):
         if self.dim < 2:
             print('维度太低，无法绘制图像')
@@ -287,9 +286,10 @@ class SAEA_Base:
                 continue
 
             Z = np.zeros_like(X)
+            t = 1 if self.is_cal_max else -1
             for ii in range(X.shape[0]):
                 for jj in range(X.shape[1]):
-                    Z[ii, jj] = self.surr_history[i-1].fit_one(np.array([X[ii, jj], Y[ii, jj]]))
+                    Z[ii, jj] = self.surr_history[i-1].fit_one(np.array([X[ii, jj], Y[ii, jj]])) * t
 
             plt.figure(figsize=(8, 6))
             # 绘制函数的深度图

@@ -22,12 +22,15 @@ class FWA_SAEA(SAEA_Base):
 
     def optimize(self):
         ea = self.ea_factory.get_alg_with_surr(self.surr)
-        selected_unit = self.select()
+        # selected_unit = self.select()
+        # for unit in selected_unit:
+        #     unit.uncertainty = None
         ea.surr = self.surr
+        ea.size = len(self.unit_list)
         ea.iter_num_main = self.iter_num
         ea.iter_max_main = self.fit_max - self.init_size
         ea.silence = True
-        ea.set_unit_list(selected_unit)
+        ea.set_unit_list(self.unit_list)
         ea.run()
         unit = FWA_SAEA_Unit()
         unit.position = ea.position_best

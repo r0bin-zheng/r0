@@ -7,3 +7,5 @@ from algs.base.unit import Unit
 class FWA_Unit(Unit):
     def __init__(self):
         super().__init__()
+        self.uncertainty = None
+        

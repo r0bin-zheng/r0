@@ -10,10 +10,13 @@ class FWA_Base(Algorithm_Impl):
     def __init__(self, dim, size, iter_max, range_min_list, range_max_list):
         super().__init__(dim, size, iter_max, range_min_list, range_max_list)
         self.name = 'FWA'
+        """生成正常火星的数量: m*b ~ m*a"""
         self.m = 40
         self.a = 0.2
         self.b = 0.8
+        """生成特殊火星的数量"""
         self.spec_num = 5
+        """烟花振幅最大值"""
         self.amplitude_max = 40
         self.all_list = []
 
