@@ -109,8 +109,7 @@ class FWA_Base(Algorithm_Impl):
         return amplitude
 
     def get_best_id(self):
-        # 找到具有最大适应度值的个体的索引
+        """找到具有最大适应度值的个体的索引"""
         values = np.array([unit.fitness for unit in self.unit_list])
         best_id = np.argmax(values)
         return best_id
-

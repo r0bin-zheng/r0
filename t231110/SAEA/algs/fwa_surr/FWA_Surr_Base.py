@@ -22,7 +22,7 @@ class FWA_Surr(FWA_Base):
         self.iter_num = 0
         self.iter_num_main = None
         self.iter_max_main = None
-        self.w_strategy = 2
+        self.w_strategy = 1
         self.alpha = alpha
         self.beta = beta
         self.WT = None
@@ -35,6 +35,24 @@ class FWA_Surr(FWA_Base):
     def update(self, iter):
         self.iter_num = iter
 
+        # 更新烟花信息
+        self.update_firework(iter)
+        
+        # 生成火星
+        self.statistics_unit_list()
+        self.denominator = None
+        for i in range(self.size):
+            self.obtain_spark(i)
+        
+        # 生成特殊火星
+        for num in range(self.spec_num):
+            rand_id = np.random.randint(0, self.size)
+            self.obtain_spec_spark(rand_id)
+
+        # 选择火星
+        self.select_sparks()
+    
+    def update_firework(self, iter):
         for i in range(self.size):
             if self.unit_list[i].fitness > self.value_best:
                 self.value_best = self.unit_list[i].fitness
@@ -55,23 +73,6 @@ class FWA_Surr(FWA_Base):
         self.position_best_history.append(self.position_best)
         if not self.silence:
             print(f"最优解= {self.position_best}")
-        
-        # 生成火星
-        self.statistics_unit_list()
-        self.denominator = None
-        # print("生成火星")
-        for i in range(self.size):
-            self.obtain_spark(i)
-        
-        # print("生成特殊火星")
-        # 生成特殊火星
-        for num in range(self.spec_num):
-            rand_id = np.random.randint(0, self.size)
-            self.obtain_spec_spark(rand_id)
-
-        # print("选择火星")
-        # 选择火星
-        self.select_sparks()
     
     def get_spark_num2(self, id):
         """
@@ -82,19 +83,21 @@ class FWA_Surr(FWA_Base):
         a 通常是一个较小的数，用于确保至少有一定数量的火星。
         b 则是一个较大的数，用于限制火星数量的上限，以避免生成过多的火星
         """
+
         T = self.iter_num_main
         f_max = max(unit.fitness for unit in self.unit_list)
         f_i = self.unit_list[id].fitness
-        U_i = self.get_unit_uncertainty(self.unit_list[id].position)
+        U_i = self.get_unit_uncertainty(self.unit_list[id])
 
         numerator = (f_max - f_i) * self.W(T) * U_i
-        denominator = sum((f_max - unit.fitness) * self.W(T) * self.get_unit_uncertainty(unit.position) for unit in self.unit_list)
+        denominator = sum((f_max - unit.fitness) * self.W(T) * self.get_unit_uncertainty(unit) for unit in self.unit_list)
 
         num = round(self.m * (numerator / (denominator + np.finfo(float).eps)))
         num = max(round(self.a * self.m), min(num, round(self.b * self.m)))
         return num
     
     def get_spark_num(self, id):
+        """计算火星数量，考虑不确定性，标准化适配度和不确定性"""
         WT = self.W(self.iter_num_main)
         f_i = self.unit_list[id].fitness
         U_i = self.get_unit_uncertainty(self.unit_list[id])
@@ -117,22 +120,13 @@ class FWA_Surr(FWA_Base):
         return num
 
     def select_sparks2(self):
-        """选择火星，考虑不确定性"""
+        """选择火星，考虑不确定性，原始版本"""
         T = self.iter_num_main
         self.all_list.extend(self.unit_list)
         f_max = max(unit.fitness for unit in self.all_list)
 
         R = np.array([unit.fitness for unit in self.all_list])
         U = np.array([self.get_unit_uncertainty(unit) for unit in self.all_list])
-
-        # rates = (R + self.W(T) * U) / np.sum(R + self.W(T) * U)
-
-        # for i in range(self.size):
-        #     chosen_id = np.random.choice(range(len(self.all_list)), p=rates)
-        #     self.unit_list[i].position = self.all_list[chosen_id].position
-        #     self.unit_list[i].fitness = self.all_list[chosen_id].fitness
-
-        # self.all_list = []
 
         # 对R中的值进行调整，以保证都为正数
         min_R = np.min(R)
@@ -148,6 +142,7 @@ class FWA_Surr(FWA_Base):
         self.all_list = []
 
     def select_sparks(self):
+        """选择火星，考虑不确定性，标准化适配度和不确定性"""
         WT = self.W(self.iter_num_main)
         R_max = max(unit.fitness for unit in self.all_list)
         R_min = min(unit.fitness for unit in self.all_list)
@@ -201,7 +196,6 @@ class FWA_Surr(FWA_Base):
         
     def statistics_unit_list(self):
         """统计unit_list的信息"""
-        # 取最小值
         fitness_max = np.finfo(float).min
         fitness_min = np.finfo(float).max
         uncertainty_max = np.finfo(float).min
