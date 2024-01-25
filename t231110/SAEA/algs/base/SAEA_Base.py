@@ -14,10 +14,14 @@ from smt.sampling_methods import LHS
 from pymoo.operators.sampling.lhs import LHS as LHS_pymoo
 from SAEA.algs.base.SAEA_Unit import SAEA_Unit
 from SAEA.utils.surrogate_model import SurrogateFactory
+from SAEA.surrogates.factory import SurrogateModelFactory
 
 
 class SAEA_Base:
-    def __init__(self, dim, init_size, pop_size, surr_type, ea_type, fit_max, iter_max, range_min_list, range_max_list, is_cal_max, surr_setting=None):
+    """
+    代理模型辅助进化算法基类
+    """
+    def __init__(self, dim, init_size, pop_size, surr_types, ea_type, fit_max, iter_max, range_min_list, range_max_list, is_cal_max, surr_setting=None):
         self.name = 'SAEA'
         self.dim = dim
         self.init_size = init_size
@@ -33,8 +37,13 @@ class SAEA_Base:
         self.iter_num = 0
         self.cal_fit_num = 0
         self.unit_list = []
-        self.surr_type = surr_type
-        self.surr_factory = SurrogateFactory([surr_type], surr_setting)
+        self.surr_type = surr_types
+        """
+        代理模型类型
+        type: list
+        """
+        # self.surr_factory = SurrogateFactory([surr_type], surr_setting)
+        self.surr_factory = SurrogateModelFactory(surr_types, surr_setting)
         self.ea_type = ea_type
         self.ea_factory = Ea_Factory(ea_type, dim, pop_size, iter_max, range_min_list, range_max_list, is_cal_max)
         self.surr = None
@@ -81,13 +90,8 @@ class SAEA_Base:
             ub = self.range_max_list[d]
             xlimts.append([lb, ub])
         xlimts = np.array(xlimts)
-
         sampling = LHS(xlimits=xlimts)
         init_pop = sampling(self.init_size)
-
-        # sampling2 = LHS_pymoo()
-        # X = sampling2(self.fitfunction, 200).get("X")
-
         for i in range(self.init_size):
             unit = SAEA_Unit()
             unit.position = init_pop[i]
@@ -101,6 +105,7 @@ class SAEA_Base:
         self.create_surrogate()
         self.optimize()
         self.merge()
+        self.update_status()
 
     def create_surrogate(self):
         X = []
@@ -110,9 +115,7 @@ class SAEA_Base:
             y.append(unit.fitness_true)
         X= np.array(X)
         y = np.array(y)
-        # print("X: ", X)
-        # print("y: ", y)
-        self.surr = self.surr_factory.get_sm(X, y)
+        self.surr = self.surr_factory.create(X, y)
         self.surr_history.append(self.surr)
 
     def optimize(self):
@@ -136,6 +139,9 @@ class SAEA_Base:
                 self.value_best = ind.fitness_true
                 self.position_best = ind.position.copy()
         self.value_best_history.append(self.value_best)
+    
+    def update_status(self):
+        pass
 
     def select(self):
         """
@@ -158,7 +164,8 @@ class SAEA_Base:
         if self.surr is None:
             value = 0
         else:
-            value = self.surr.fit_one(position)
+            # value = self.surr.fit_one(position)
+            value = self.surr.predict_one(position.reshape(1, -1))[0]
         return value
     
     def print_iter(self):
@@ -209,6 +216,7 @@ class SAEA_Base:
         print("save result at result.txt")
     
     def draw_fit_2d_gif(self, step, is_save, name=None):
+        """绘制迭代过程中真实背景和种群个体"""
         if self.dim < 2:
             print('维度太低，无法绘制图像')
             return
@@ -267,6 +275,7 @@ class SAEA_Base:
         print("draw pop fitness 2d gif at ", name + "_2d.gif")
 
     def draw_surr_2d_gif(self, step, is_save, name=None):
+        """绘制迭代过程中代理模型背景和种群个体"""
         if self.dim < 2:
             print('维度太低，无法绘制图像')
             return
@@ -289,7 +298,7 @@ class SAEA_Base:
             t = 1 if self.is_cal_max else -1
             for ii in range(X.shape[0]):
                 for jj in range(X.shape[1]):
-                    Z[ii, jj] = self.surr_history[i-1].fit_one(np.array([X[ii, jj], Y[ii, jj]])) * t
+                    Z[ii, jj] = self.surr_history[i-1].predict_one(np.array([X[ii, jj], Y[ii, jj]])) * t
 
             plt.figure(figsize=(8, 6))
             # 绘制函数的深度图

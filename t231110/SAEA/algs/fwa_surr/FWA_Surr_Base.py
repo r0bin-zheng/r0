@@ -17,16 +17,20 @@ class FWA_Surr(FWA_Base):
         super().__init__(dim, size, iter_max, range_min_list, range_max_list)
         self.name = 'FWA_Surr'
         self.surr = None
-        # self.iter_max_main = iter_max_main # 主算法迭代次数
-
+        """循环迭代次数"""
         self.iter_num = 0
+        """主循环迭代次数"""
         self.iter_num_main = None
+        """主循环迭代次数最大值"""
         self.iter_max_main = None
+        """权重因子计算策略"""
         self.w_strategy = 1
+        """权重因子计算策略1的参数"""
         self.alpha = alpha
+        """权重因子计算策略2的参数"""
         self.beta = beta
+        """权重因子"""
         self.WT = None
-
         self.pop_fitness_max = None
         self.pop_fitness_min = None
         self.pop_uncertainty_max = None
@@ -37,27 +41,50 @@ class FWA_Surr(FWA_Base):
 
         # 更新烟花信息
         self.update_firework(iter)
+        self.statistics_unit_list()
         
         # 生成火星
-        self.statistics_unit_list()
         self.denominator = None
+        # print("生成火星")
         for i in range(self.size):
             self.obtain_spark(i)
         
         # 生成特殊火星
+        # print("生成特殊火星")
         for num in range(self.spec_num):
             rand_id = np.random.randint(0, self.size)
             self.obtain_spec_spark(rand_id)
 
         # 选择火星
+        # print("选择火星")
         self.select_sparks()
+        # print("选择火星结束")
     
     def update_firework(self, iter):
-        for i in range(self.size):
-            if self.unit_list[i].fitness > self.value_best:
-                self.value_best = self.unit_list[i].fitness
-                self.position_best = self.unit_list[i].position
-            self.unit_list[i].save()
+        """更新烟花信息"""
+        # wt = self.W(iter)
+        # fitness_list = [unit.fitness for unit in self.unit_list]
+        # uncertainty_list = [self.get_unit_uncertainty(unit) for unit in self.unit_list]
+        # # 标准化适应度和不确定性
+        # fitness_range = max(fitness_list) - min(fitness_list)
+        # uncertainty_range = max(uncertainty_list) - min(uncertainty_list)
+        # normalized_fitness_list = [(unit.fitness - min(fitness_list)) / fitness_range if fitness_range > 0 else 0 for unit in self.unit_list]
+        # normalized_uncertainty_list = [(self.get_unit_uncertainty(unit) - min(uncertainty_list)) / uncertainty_range if uncertainty_range > 0 else 0 for unit in self.unit_list]
+
+        if iter == 1:
+            for i in range(self.size):
+                if self.unit_list[i].fitness > self.value_best:
+                    self.value_best = self.unit_list[i].fitness
+                    self.position_best = self.unit_list[i].position
+                self.unit_list[i].save()
+        else:
+            if iter == 2:
+                self.value_best = self.unit_list[0].value
+            for i in range(self.size):
+                if self.unit_list[i].value > self.value_best:
+                    self.value_best = self.unit_list[i].fitness
+                    self.position_best = self.unit_list[i].position
+                self.unit_list[i].save()
 
         if not self.silence:
             print(f"第 {iter} 代")
@@ -157,6 +184,7 @@ class FWA_Surr(FWA_Base):
             R_norm = ((unit.fitness - R_min) / R_range) if R_range > 0 else 0
             U_norm = ((self.get_unit_uncertainty(unit) - U_min) / U_range) if U_range > 0 else 0
             numerator = R_norm + WT * U_norm
+            unit.value = numerator # 存储综合值
             probabilities.append(numerator)
 
         denominator = sum(probabilities) + np.finfo(float).eps  # 为了防止除以零
@@ -167,13 +195,15 @@ class FWA_Surr(FWA_Base):
             chosen_id = np.random.choice(range(len(self.all_list)), p=probabilities)
             self.unit_list[i].position = self.all_list[chosen_id].position
             self.unit_list[i].fitness = self.all_list[chosen_id].fitness
+            self.unit_list[i].value = self.all_list[chosen_id].value
+            self.unit_list[i].uncertainty = self.get_unit_uncertainty(self.unit_list[i])
 
         self.all_list = []
 
     def get_uncertainty(self, X):
         """获取给定解的不确定性"""
-        _, std = self.surr.predict_values(X.reshape(1, -1)), self.surr.predict_variances(X.reshape(1, -1))
-        return std[0, 0]
+        std = self.surr.predict_variances_one(X)
+        return std
     
     def get_unit_uncertainty(self, unit):
         """获取给定单元的不确定性"""
@@ -191,7 +221,7 @@ class FWA_Surr(FWA_Base):
             elif self.w_strategy == 2:
                 """计算权重因子，随迭代次数线性衰减"""
                 self.WT = max(0, self.beta * (1 - T / self.iter_max_main))
-            print("WT: ", self.WT)
+            # print("WT: ", self.WT)
         return self.WT
         
     def statistics_unit_list(self):

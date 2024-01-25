@@ -66,7 +66,8 @@ def run_task(problem="F12022", alg="DE", dim=2):
 
 
 def main():
-    problem = "F12022"
+    # problem = "Griewank"
+    problem = "Ackley01"
     ndim = 2
     alg = "DE"
     run_task(problem, alg, ndim)

@@ -197,6 +197,9 @@ class Algorithm_Impl:
         if self.dim < 2:
             print('维度太低，无法绘制图像')
             return
+        if self.dim > 3:
+            print('维度太高，无法绘制图像')
+            return
         if step < 1:
             step = 1
 

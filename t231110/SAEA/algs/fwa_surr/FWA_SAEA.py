@@ -7,7 +7,7 @@ from SAEA.algs.fwa_surr.FWA_SAEA_Unit import FWA_SAEA_Unit
 class FWA_SAEA(SAEA_Base):
     def __init__(self, dim, init_size, pop_size, surr_type, ea_type, fit_max,
                  iter_max, range_min_list, range_max_list, is_cal_max, surr_setting):
-        ea_type = "FWA_Surr"
+        ea_type = "FWA_Surr_Impl2"
 
         super().__init__(dim, init_size, pop_size, surr_type, ea_type, fit_max,
                          iter_max, range_min_list, range_max_list, is_cal_max, surr_setting)
@@ -17,7 +17,7 @@ class FWA_SAEA(SAEA_Base):
         self.a = 0.2
         self.b = 0.8
         self.spec_num = 5
-        self.amplitude_max = 40
+        self.amplitude_max = range_max_list[0] * 0.6
         self.all_list = []
 
     def optimize(self):

@@ -18,6 +18,7 @@ class FWA_Base(Algorithm_Impl):
         self.spec_num = 5
         """烟花振幅最大值"""
         self.amplitude_max = 40
+        """所有火星，包括烟花、正常火星、特殊火星"""
         self.all_list = []
 
     def init(self):
