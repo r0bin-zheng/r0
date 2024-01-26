@@ -18,21 +18,22 @@ class SmtSurrogateModel(SurrogateModel):
         self.model.train()
 
     def predict(self, X):
-        return self.model.predict_values(X)
+        X_ = np.array(X)
+        return self.model.predict_values(X_).flatten()
     
     def predict_one(self, X):
         X_ = np.array([X])
         y = self.predict(X_)
-        y = y[0][0]
+        y = y.flatten()[0]
         return y
     
     def predict_variances(self, X):
-        return self.model.predict_variances(X)
+        return self.model.predict_variances(X).flatten()
     
     def predict_variances_one(self, X):
         X_ = np.array([X])
         var = self.predict_variances(X_)
-        var = var[0][0]
+        var = var.flatten()[0]
         return var
     
     def predict_value_variance(self, X):

@@ -91,6 +91,7 @@ class FWA_Surr_Impl1(FWA_Surr):
         - 精英选择，其他个体轮盘赌
         - 更新CF信息
         """
+        self.all_list.extend(self.unit_list)
         WT = self.W(self.iter_num_main)
         R_max = self.all_list[0].fitness
         R_min = self.all_list[-1].fitness
@@ -212,16 +213,21 @@ class FWA_Surr_Impl1(FWA_Surr):
         max_list = self.range_max_list if max_list is None else max_list
         position_tmp = position.copy()
 
-        # 对于低于最小值的元素
-        under_min = position < min_list
-        position_tmp[under_min] = 2 * min_list[under_min] - position[under_min]
 
-        # 对于超过最大值的元素
+        # 对于超过最大值的元素，减去最小值，然后对范围取模，最后最大值减去结果
         above_max = position > max_list
-        position_tmp[above_max] = 2 * max_list[above_max] - position[above_max]
+        position_tmp[above_max] = position[above_max] - min_list[above_max]
+        position_tmp[above_max] = position_tmp[above_max] % (max_list[above_max] - min_list[above_max])
+        position_tmp[above_max] = max_list[above_max] - position_tmp[above_max]
 
-        # 确保反射后的值仍在范围内
-        position_tmp = np.clip(position_tmp, min_list, max_list)
+        # 对于超过最小值的元素，减去最小值，然后对范围取模，最后最小值加上结果
+        below_min = position < min_list
+        position_tmp[below_min] = position[below_min] - min_list[below_min]
+        position_tmp[below_min] = position_tmp[below_min] % (max_list[below_min] - min_list[below_min])
+        position_tmp[below_min] = min_list[below_min] + position_tmp[below_min]
+
+        # # 确保反射后的值仍在范围内
+        # position_tmp = np.clip(position_tmp, min_list, max_list)
 
         return position_tmp
 

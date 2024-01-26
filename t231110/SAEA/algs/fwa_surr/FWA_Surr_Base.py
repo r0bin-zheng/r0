@@ -35,6 +35,14 @@ class FWA_Surr(FWA_Base):
         self.pop_fitness_min = None
         self.pop_uncertainty_max = None
         self.pop_uncertainty_min = None
+        self.use_variances = True
+
+    def init(self):
+        """初始化种群，由于SAEA框架中的一部分，初始化种群工作将在主算法完成"""
+        self.position_best = np.zeros(self.dim)
+        self.value_best_history = []
+        self.position_best_history = []
+        self.value_best = -np.finfo(np.float64).max
 
     def update(self, iter):
         self.iter_num = iter
@@ -170,6 +178,7 @@ class FWA_Surr(FWA_Base):
 
     def select_sparks(self):
         """选择火星，考虑不确定性，标准化适配度和不确定性"""
+        self.all_list.extend(self.unit_list)
         WT = self.W(self.iter_num_main)
         R_max = max(unit.fitness for unit in self.all_list)
         R_min = min(unit.fitness for unit in self.all_list)

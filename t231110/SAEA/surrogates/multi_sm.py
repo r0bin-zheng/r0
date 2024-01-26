@@ -29,8 +29,12 @@ class MultiSurrogate(SurrogateModel):
 
     def init(self):
         self.model = []
+        self.predict_variances_flag = False
         for type in self.type:
-            self.model.append(SM_DICT[type]())
+            sm = SM_DICT[type]()
+            self.model.append(sm)
+            if sm.predict_variances_flag:
+                self.predict_variances_flag = True
 
     def train(self, X, y):
         for m in self.model:

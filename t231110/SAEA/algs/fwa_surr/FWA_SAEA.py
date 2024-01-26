@@ -21,20 +21,33 @@ class FWA_SAEA(SAEA_Base):
         self.all_list = []
 
     def optimize(self):
+        optimizer = self.get_optimizer()
+        optimizer.run()
+        unit = self.get_best_unit(optimizer)
+        self.unit_new = [unit]
+        print("unit_new position: ", unit.position, " fitness: ", unit.fitness)
+        optimizer.draw2_gif(10, True, f"FWA_SAEA_iter{self.iter_num}")
+
+    def get_optimizer(self):
         ea = self.ea_factory.get_alg_with_surr(self.surr)
-        # selected_unit = self.select()
-        # for unit in selected_unit:
-        #     unit.uncertainty = None
         ea.surr = self.surr
         ea.size = len(self.unit_list)
         ea.iter_num_main = self.iter_num
         ea.iter_max_main = self.fit_max - self.init_size
         ea.silence = True
         ea.set_unit_list(self.unit_list)
-        ea.run()
-        unit = FWA_SAEA_Unit()
-        unit.position = ea.position_best
-        unit.fitness = ea.value_best
-        self.unit_new = [unit]
-        print("unit_new position: ", unit.position, " fitness: ", unit.fitness)
-        ea.draw2_gif(10, True, f"FWA_SAEA_iter{self.iter_num}")
+        return ea
+    
+    def get_best_unit(self, optimizer):
+        """添加去重功能"""
+        unit_list = optimizer.unit_list
+        unit_fwa = FWA_SAEA_Unit()
+        unit_list.sort(key=lambda x: x.value, reverse=True)
+        for unit in unit_list:
+            if self.is_exist(unit):
+                continue
+            else:
+                unit_fwa.position = unit.position_best
+                unit_fwa.fitness = unit.value_best
+                break
+        return unit_fwa

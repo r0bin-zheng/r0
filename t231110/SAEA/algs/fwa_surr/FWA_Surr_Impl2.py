@@ -69,11 +69,36 @@ class FWA_Surr_Impl2(FWA_Surr_Impl1):
         pos = self.get_out_bound_value_rand(pos, self.range_min_list, self.range_max_list)
         spec_spark = FWA_Unit()
         spec_spark.position = pos
-        # spec_spark.fitness = self.cal_fitfunction(pos)
         self.all_list.append(spec_spark)
 
+    def get_spark_num(self, id):
+        """计算火星数量，去除不必要的计算"""
+        unit = self.unit_list[id]
+        f_range = self.pop_fitness_max - self.pop_fitness_min
+        U_range = self.pop_uncertainty_max - self.pop_uncertainty_min
+        if unit.value == None:
+            WT = self.W(self.iter_num_main)
+            f_i = self.unit_list[id].fitness
+            U_i = self.get_unit_uncertainty(self.unit_list[id])
+            
+            # 最小-最大标准化适应度和不确定性
+            normalized_f_i = (f_i - self.pop_fitness_min) / f_range if f_range > 0 else 0
+            normalized_U_i = (U_i - self.pop_uncertainty_min) / U_range if U_range > 0 else 0
+            
+            # 计算分子和分母
+            numerator = normalized_f_i + WT * normalized_U_i
+            
+        else:
+            numerator = unit.value
+        if self.denominator == None:
+            self.denominator = sum((unit.fitness - self.pop_fitness_min) / f_range if f_range > 0 else 0 + WT * (self.get_unit_uncertainty(unit) - self.pop_uncertainty_min) / U_range if U_range > 0 else 0 for unit in self.unit_list)
+
+        num = round(self.m * (numerator / (self.denominator + np.finfo(float).eps)))
+        num = max(round(self.a * self.m), min(num, round(self.b * self.m)))
+        return num
+
     def get_fitness_uncertainty(self):
-        """计算适配度和不确定性"""
+        """计算all_list的适配度和不确定性"""
         self.all_list.extend(self.unit_list)
         pos_list = np.array([unit.position for unit in self.all_list])
         values, vars = self.surr.predict_value_variance(pos_list)
@@ -157,3 +182,15 @@ class FWA_Surr_Impl2(FWA_Surr_Impl1):
         # 更新CF信息
         self.get_cf_amplitude(unit_best)
         self.CF = unit_best
+
+    def get_out_bound_value_rand(self, position, min_list=None, max_list=None):
+        """镜像法处理越界值，性能优化去掉copy"""
+        min_list = self.range_min_list if min_list is None else min_list
+        max_list = self.range_max_list if max_list is None else max_list
+        range_list = max_list - min_list
+        pos = position
+        below_min = pos < min_list
+        above_max = pos > max_list
+        pos[below_min] = (min_list[below_min] - pos[below_min]) % range_list[below_min] + min_list[below_min]
+        pos[above_max] = max_list[above_max] - (pos[above_max] - max_list[above_max]) % range_list[above_max]
+        return pos

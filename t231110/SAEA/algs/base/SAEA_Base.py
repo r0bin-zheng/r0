@@ -57,6 +57,8 @@ class SAEA_Base:
         self.position_best = None
         self.time_cost = None
 
+        self.draw_gif_flag = True
+
     def run(self):
         self.start_time = time.time()
         self.init()
@@ -119,17 +121,26 @@ class SAEA_Base:
         self.surr_history.append(self.surr)
 
     def optimize(self):
+        optimizer = self.get_optimizer()
+        optimizer.run()
+        unit = self.get_best_unit(optimizer)
+        self.unit_new = [unit]
+        print("unit_new position: ", unit.position, " fitness: ", unit.fitness)
+        if self.draw_gif_flag:
+            optimizer.draw2_gif(10, True, f"SAEA_iter{self.iter_num}")
+
+    def get_optimizer(self):
         ea = self.ea_factory.get_alg_with_surr(self.surr)
         selected_unit = self.select()
         ea.silence = True
         ea.set_unit_list(selected_unit)
-        ea.run()
+        return ea
+    
+    def get_best_unit(self, optimizer):
         unit = SAEA_Unit()
-        unit.position = ea.position_best
-        unit.fitness = ea.value_best
-        self.unit_new = [unit]
-        print("unit_new position: ", unit.position, " fitness: ", unit.fitness)
-        ea.draw2_gif(10, True, f"SAEA_iter{self.iter_num}")
+        unit.position = optimizer.position_best
+        unit.fitness = optimizer.value_best
+        return unit
 
     def merge(self):
         for ind in self.unit_new:
@@ -220,6 +231,9 @@ class SAEA_Base:
         if self.dim < 2:
             print('维度太低，无法绘制图像')
             return
+        if self.dim > 3:
+            print('维度太高，无法绘制图像')
+            return
         if step < 1:
             step = 1
 
@@ -278,6 +292,9 @@ class SAEA_Base:
         """绘制迭代过程中代理模型背景和种群个体"""
         if self.dim < 2:
             print('维度太低，无法绘制图像')
+            return
+        if self.dim > 3:
+            print('维度太高，无法绘制图像')
             return
         if step < 1:
             step = 1

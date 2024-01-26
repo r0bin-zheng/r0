@@ -26,6 +26,8 @@ class Exp:
         self.save_path = f'./exp/{self.id}'
 
     def init(self):
+        # 获取当前文件所在目录
+        os.chdir(os.path.dirname(os.path.abspath(__file__)))
         os.mkdir(self.save_path)
         os.chdir(self.save_path)
 
@@ -41,7 +43,7 @@ class Exp:
         init_size = 100
         pop_size = 60
         surr_type = "kriging"
-        surr_types = [["sklearn_gpr"], ["smt_kplsk"]]
+        surr_types = [["my_sklearn_gpr"], ["smt_kplsk"]]
         ea_type = "FWA_Surr_Impl2"
         ea_types = ["FWA_Surr_Impl2", "DE_Surr_Base"]
         fit_max = 1000
@@ -49,15 +51,18 @@ class Exp:
         # init_size = 100
         # pop_size = 60
         # # surr_type = "kriging"
-        # surr_types = [["sklearn_gpr"], ["smt_kplsk"]]
+        # surr_types = [["my_sklearn_gpr"], ["smt_kplsk"]]
         # # surr_types = [["sklearn_gpr"], ["smt_kplsk"]]
         # ea_type = "FWA_Surr_Impl2"
         # ea_types = ["FWA_Surr_Impl2", "DE_Surr_Base"]
-        # fit_max = 110
-        # iter_max = 30
+        # fit_max = 176
+        # iter_max = 60
 
         range_max_list = np.ones(dim) * ub
         range_min_list = np.ones(dim) * lb
+        print("range_max_list: ", range_max_list)
+        print("range_min_list: ", range_min_list)
+
         is_cal_max = False
         surr_setting = {
             "print_training": False,

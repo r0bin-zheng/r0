@@ -23,7 +23,6 @@ class DE_Base(Algorithm_Impl):
             unit.position_new = unit.position.copy()
             unit.fitness = self.cal_fitfunction(unit.position)
             self.unit_list.append(unit)
-        # self.print_unit_list()
 
     def update(self, iter):
         super().update(iter)
