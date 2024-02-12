@@ -38,8 +38,8 @@ class SmtSurrogateModel(SurrogateModel):
     
     def predict_value_variance(self, X):
         X_ = np.array(X)
-        y = self.model.predict(X)
-        var = self.model.predict_variances(X)
+        y = self.model.predict_values(X_)
+        var = self.model.predict_variances(X_)
         return y.flatten(), var.flatten()
     
 
@@ -50,7 +50,7 @@ class SmtKriging(SmtSurrogateModel):
 
     def init(self):
         self.name = "smt_kriging"
-        self.model = KRG(print_global=False)
+        self.model = KRG(theta0=[1e-2], print_global=False)
 
 
 class SmtKPLSK(SmtSurrogateModel):
@@ -60,7 +60,7 @@ class SmtKPLSK(SmtSurrogateModel):
 
     def init(self):
         self.name = "smt_kplsk"
-        self.model = KPLSK(print_global=False)
+        self.model = KPLSK(theta0=[1e-2], print_global=False)
 
 
 class SmtRBF(SmtSurrogateModel):

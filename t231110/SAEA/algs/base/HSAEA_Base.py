@@ -29,7 +29,7 @@ class HSAEA_Base(SAEA_Base):
         super().__init__(dim, init_size, pop_size, surr_type, ea_type, fit_max,
                          iter_max, range_min_list, range_max_list, is_cal_max, surr_setting)
         self.name = 'HSAEA_Base'
-        self.pop_size_local = init_size
+        self.pop_size_local = 30
         self.pop_local = []
         
         self.surr_type_global = surr_types[0]
@@ -75,16 +75,20 @@ class HSAEA_Base(SAEA_Base):
         X= np.array(X)
         y = np.array(y)
         if self.use_local:
-            # 选择欧式距离最靠近最优解的前1/5个点
+            # 如果pop_size_local大于1，则pop_size_local作为个数
+            # 否则pop_size_local作为比例
             dist = np.linalg.norm(X - self.position_best, axis=1)
             idx = np.argsort(dist)
-            idx = idx[:int(len(idx) / 5)]
+            if self.pop_size_local > 1:
+                idx = idx[:self.pop_size_local]
+            else:
+                idx = idx[:min(int(len(idx) * self.pop_size_local), len(idx))]
             self.pop_size_local = len(idx)
             self.pop_local = []
-            for i in range(self.pop_size_local):
+            for i in idx:
                 unit = SAEA_Unit()
-                unit.position = X[idx[i]]
-                unit.fitness = y[idx[i]]
+                unit.position = X[i]
+                unit.fitness = y[i]
                 self.pop_local.append(unit)
             X = X[idx]
             y = y[idx]
@@ -133,7 +137,7 @@ class HSAEA_Base(SAEA_Base):
             ea = self.ea_factory_global.get_alg_with_surr(self.surr)
         ea.surr = self.surr
         if self.use_local:
-            ea.size = min(self.pop_size_local, self.pop_size)
+            ea.size = min(len(self.pop_local), self.pop_size)
         else:
             ea.size = self.pop_size 
         ea.iter_num_main = self.iter_num

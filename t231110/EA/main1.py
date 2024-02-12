@@ -70,6 +70,7 @@ def main():
     problem = "Ackley01"
     ndim = 2
     alg = "DE"
+    # alg = "FWA"
     run_task(problem, alg, ndim)
 
 

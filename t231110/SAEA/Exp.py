@@ -27,11 +27,11 @@ class Exp:
 
     def init(self):
         # 获取当前文件所在目录
-        os.chdir(os.path.dirname(os.path.abspath(__file__)))
-        os.mkdir(self.save_path)
-        os.chdir(self.save_path)
+        # os.chdir(os.path.dirname(os.path.abspath(__file__)))
+        # os.mkdir(self.save_path)
+        # os.chdir(self.save_path)
 
-        dim = 10
+        dim = 2
 
         lb, ub, dim, fobj = get_problem_detail(self.problem_name, ndim=dim)
         print(f'测试函数：{self.problem_name}')
@@ -43,11 +43,11 @@ class Exp:
         init_size = 100
         pop_size = 60
         surr_type = "kriging"
-        surr_types = [["my_sklearn_gpr"], ["smt_kplsk"]]
+        surr_types = [["smt_kplsk"], ["smt_kplsk"]]
         ea_type = "FWA_Surr_Impl2"
         ea_types = ["FWA_Surr_Impl2", "DE_Surr_Base"]
-        fit_max = 1000
-        iter_max = 100
+        fit_max = 176
+        iter_max = 60
         # init_size = 100
         # pop_size = 60
         # # surr_type = "kriging"

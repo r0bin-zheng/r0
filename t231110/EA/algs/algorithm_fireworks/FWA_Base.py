@@ -11,13 +11,13 @@ class FWA_Base(Algorithm_Impl):
         super().__init__(dim, size, iter_max, range_min_list, range_max_list)
         self.name = 'FWA'
         """生成正常火星的数量: m*b ~ m*a"""
-        self.m = 40
-        self.a = 0.2
-        self.b = 0.8
+        self.m = 5
+        self.a = 0.25
+        self.b = 0.9
         """生成特殊火星的数量"""
         self.spec_num = 5
         """烟花振幅最大值"""
-        self.amplitude_max = 40
+        self.amplitude_max = 30
         """所有火星，包括烟花、正常火星、特殊火星"""
         self.all_list = []
         self.unit_list = []
@@ -76,20 +76,34 @@ class FWA_Base(Algorithm_Impl):
         """选择火星"""
         self.all_list.extend(self.unit_list)
         values = np.array([unit.fitness for unit in self.all_list])
-        max_value_id = np.argmax(values)
-
-        distances = np.abs(values[:, None] - values)
-        dist_sum = np.sum(distances, axis=1)
-        rates = dist_sum / np.sum(dist_sum)
-
+        # 按照适应度值的大小进行排序，并选择最优的size个个体
+        sort_index = np.argsort(-values)
+        # if self.is_cal_max:
+        #     sort_index = np.argsort(-values)
+        # else:
+        #     sort_index = np.argsort(values)
         for i in range(self.size):
-            if i == 0:
-                self.unit_list[0].position = self.all_list[max_value_id].position
-                self.unit_list[0].fitness = self.all_list[max_value_id].fitness
-            else:
-                chosen_id = np.random.choice(range(len(self.all_list)), p=rates)
-                self.unit_list[i].position = self.all_list[chosen_id].position
-                self.unit_list[i].fitness = self.all_list[chosen_id].fitness
+            self.unit_list[i].position = self.all_list[sort_index[i]].position
+            self.unit_list[i].fitness = self.all_list[sort_index[i]].fitness
+        # self.all_list = [self.all_list[i] for i in sort_index]
+        # self.unit_list = self.all_list[:self.size]
+        self.all_list = []
+
+
+        # max_value_id = np.argmax(values)
+
+        # distances = np.abs(values[:, None] - values)
+        # dist_sum = np.sum(distances, axis=1)
+        # rates = dist_sum / np.sum(dist_sum)
+
+        # for i in range(self.size):
+        #     if i == 0:
+        #         self.unit_list[0].position = self.all_list[max_value_id].position
+        #         self.unit_list[0].fitness = self.all_list[max_value_id].fitness
+        #     else:
+        #         chosen_id = np.random.choice(range(len(self.all_list)), p=rates)
+        #         self.unit_list[i].position = self.all_list[chosen_id].position
+        #         self.unit_list[i].fitness = self.all_list[chosen_id].fitness
 
         self.all_list = []
 

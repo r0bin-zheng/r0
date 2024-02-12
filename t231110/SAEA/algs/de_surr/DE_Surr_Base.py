@@ -24,13 +24,20 @@ class DE_Surr_Base(DE_Base):
 
     def choose(self):
         pos_new_list = []
+        idx_list = []
         for i in range(self.size):
             pos = self.unit_list[i].position_new
             if pos is not None:
                 pos_new_list.append(pos)
+                idx_list.append(i)
         fitness_list = self.surr.predict(np.array(pos_new_list))
-        for i in range(self.size):
+        for i in range(len(idx_list)):
             new_value = fitness_list[i]
-            if new_value > self.unit_list[i].fitness:
-                self.unit_list[i].fitness = new_value
-                self.unit_list[i].position = self.unit_list[i].position_new.copy()
+            if new_value > self.unit_list[idx_list[i]].fitness:
+                self.unit_list[idx_list[i]].fitness = new_value
+                self.unit_list[idx_list[i]].position = self.unit_list[idx_list[i]].position_new.copy()
+        # for i in range(self.size):
+        #     new_value = fitness_list[i]
+        #     if new_value > self.unit_list[i].fitness:
+        #         self.unit_list[i].fitness = new_value
+        #         self.unit_list[i].position = self.unit_list[i].position_new.copy()
