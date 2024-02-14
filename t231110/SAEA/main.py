@@ -8,10 +8,14 @@ from SAEA.Exp import Exp
 def main():
 
     # problem = "Himmelblau" # Himmelblau (2D)
-    problem = "Ackley01"
+    # problem = "Ackley01"
     # problem = "Griewank"
     # problem = "F12022"
     # problem = "Rastrigin"
+    # problem = "Ellipsoid"
+    # problem = "F62005"
+    # problem = "F72005"
+    problem = "Rosenbrock"
 
     alg = "HSAEA"
     # alg = "DE_SAEA_Base"

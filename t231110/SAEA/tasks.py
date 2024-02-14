@@ -7,26 +7,31 @@ import itertools
 import subprocess
 from tqdm import tqdm
 from SAEA.Exp import Exp
-from t231110.SAEA.utils.common1 import get_id, get_time_str
+from SAEA.utils.common1 import get_id, get_time_str
 
 def get_all_exp_settings():
+    # problems = [
+    #     "Ackley01",
+    #     "Rastrigin",
+    #     "F12017",
+    #     "F32017",
+    #     "F42017",
+    #     "F52017",
+    #     "F62017",
+    #     "Himmelblau",
+    #     "Griewank",
+    # ]
     problems = [
+        "F62005",
         "Ackley01",
-        "Rastrigin",
-        "F12017",
-        "F32017",
-        "F42017",
-        "F52017",
-        "F62017",
-        "Himmelblau",
-        "Griewank",
+        "F72005",
     ]
 
     algs = [
         "HSAEA",
-        "DE_SAEA_Base",
-        "FWA_SAEA",
-        "SAEA",
+        # "DE_SAEA_Base",
+        # "FWA_SAEA",
+        # "SAEA",
     ]
 
     return itertools.product(problems, algs)
@@ -37,11 +42,13 @@ def init():
 def run_tasks():
     init()
     exps = get_all_exp_settings()
+    exp_list = list(exps)
 
-    with tqdm(total=len(list(exps)), desc="Processing", unit="it") as pbar:
-        for exp in exps:
+    with tqdm(total=len(exp_list), desc="Processing", unit="it") as pbar:
+        for exp in exp_list:
             problem, alg = exp
             id = get_id()
+            os.makedirs(f"./exp/{id}", exist_ok=True)
             command = f"python script.py -p {problem} -a {alg} -i {id}"
             with open(f"./exp/{id}/output.txt", "w", encoding="utf-8") as output_file, open(
                 "./log.txt", "a", encoding="utf-8") as log_file:

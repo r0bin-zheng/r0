@@ -6,7 +6,7 @@ import random
 import string
 import datetime
 
-def get_id(self):
+def get_id():
     """根据日期时间生成id"""
 
     # 格式：YYYYMMDDHHMMSS_XXXXX

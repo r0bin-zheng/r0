@@ -4,7 +4,7 @@ sys.path.append(r"/home/robin/projects/t231101/t231110")
 
 import argparse
 from SAEA.Exp import Exp
-from t231110.SAEA.utils.common1 import get_id
+from SAEA.utils.common1 import get_id
 
 parser = argparse.ArgumentParser(description="")
 parser.add_argument("--problem", "-p", type=str, default="Ackley01")

@@ -33,6 +33,8 @@ class SAEA_Base:
         self.is_cal_max = is_cal_max
         self.silence = False
         self.save_flag = True
+        self.draw_result_flag = True
+        self.draw_gif_flag = False
 
         self.iter_num = 0
         self.cal_fit_num = 0
@@ -57,7 +59,6 @@ class SAEA_Base:
         self.position_best = None
         self.time_cost = None
 
-        self.draw_gif_flag = True
 
     def run(self):
         self.start_time = time.time()
