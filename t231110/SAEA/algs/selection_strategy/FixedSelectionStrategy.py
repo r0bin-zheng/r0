@@ -27,7 +27,7 @@ class FixedSelectionStrategy(BaseSelectionStrategy):
         """
         sum = 0.0
         for r in self.rate:
-            if r <= 0 or r > 1:
+            if r < 0 or r > 1:
                 return False
             sum += r
         if sum != 1 or len(self.list) != len(self.rate):
@@ -35,7 +35,7 @@ class FixedSelectionStrategy(BaseSelectionStrategy):
         return True
 
 
-    def select(self):
+    def select(self, flag=None, iter=None):
         """
         选择
         """

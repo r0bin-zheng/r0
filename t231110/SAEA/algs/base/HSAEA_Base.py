@@ -23,7 +23,8 @@ class HSAEA_Base(SAEA_Base):
 
     """
     def __init__(self, dim, init_size, pop_size, surr_types, ea_types, fit_max,
-                 iter_max, range_min_list, range_max_list, is_cal_max, surr_setting):
+                 iter_max, range_min_list, range_max_list, is_cal_max, surr_setting,
+                 selection_strategy=None):
         ea_type = ea_types[0]
         surr_type = surr_types[0]
         super().__init__(dim, init_size, pop_size, surr_type, ea_type, fit_max,
@@ -69,7 +70,7 @@ class HSAEA_Base(SAEA_Base):
             [False, True],
             changing_type="FirstStageDecreasesNonlinearly",
             iter_max=(fit_max - init_size)
-        )
+        ) if selection_strategy is None else selection_strategy
         """选择策略"""
 
     def create_surrogate(self):
@@ -223,3 +224,30 @@ class HSAEA_Base(SAEA_Base):
         #         self.use_local = False
         #     else:
         #         self.use_local = True
+    
+    def toStr(self):
+        # 打印选择策略的类名称
+        select_strategy_class = self.selection_strategy.__class__.__name__
+        # return super().toStr() + f" HSAEA_Base: use_local={self.use_local}\n\
+        #     selection_strategy={select_strategy_class}\n\
+        #     surr_type_global={self.surr_type_global}\n\
+        #     surr_type_local={self.surr_type_local}\n\
+        #     ea_type_global={self.ea_type_global}\n\
+        #     ea_type_local={self.ea_type_local}\n\
+        #     pop_size_local={self.pop_size_local}\n\
+        #     range_min_list_local={self.range_min_list_local}\n\
+        #     range_max_list_local={self.range_max_list_local}\n\
+        #     global_p_init={self.global_p_init}\n\
+        #     selection_strategy={select_strategy_class}\n"
+        str = super().toStr()
+        str += f"HSAEA_Base: use_local={self.use_local}\n"
+        str += f"surr_type_global={self.surr_type_global}\n"
+        str += f"surr_type_local={self.surr_type_local}\n"
+        str += f"ea_type_global={self.ea_type_global}\n"
+        str += f"ea_type_local={self.ea_type_local}\n"
+        str += f"pop_size_local={self.pop_size_local}\n"
+        str += f"range_min_list_local={self.range_min_list_local}\n"
+        str += f"range_max_list_local={self.range_max_list_local}\n"
+        str += f"global_p_init={self.global_p_init}\n"
+        str += f"selection_strategy={select_strategy_class}\n"
+        return str

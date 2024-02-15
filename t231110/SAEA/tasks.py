@@ -22,9 +22,9 @@ def get_all_exp_settings():
     #     "Griewank",
     # ]
     problems = [
-        "F62005",
+        # "F62005",
         "Ackley01",
-        "F72005",
+        # "F72005",
     ]
 
     algs = [
@@ -34,7 +34,23 @@ def get_all_exp_settings():
         # "SAEA",
     ]
 
-    return itertools.product(problems, algs)
+    dims = [
+        10,
+    ]
+
+    fit_max = [
+        1000,
+    ]
+
+    selection_strategies = [
+        # "JustGlobal",
+        "JustLocal",
+        # "HalfHalf",
+        # "MixedLinearly",
+        # "MixedNonlinearly",
+    ]
+
+    return itertools.product(problems, algs, dims, fit_max, selection_strategies)
 
 def init():
     os.makedirs("./exp", exist_ok=True)
@@ -46,10 +62,10 @@ def run_tasks():
 
     with tqdm(total=len(exp_list), desc="Processing", unit="it") as pbar:
         for exp in exp_list:
-            problem, alg = exp
+            problem, alg, dim, fit_max, ss = exp
             id = get_id()
             os.makedirs(f"./exp/{id}", exist_ok=True)
-            command = f"python script.py -p {problem} -a {alg} -i {id}"
+            command = f"python script.py -p {problem} -a {alg} -i {id} -d {dim} -m {fit_max} -s {ss}"
             with open(f"./exp/{id}/output.txt", "w", encoding="utf-8") as output_file, open(
                 "./log.txt", "a", encoding="utf-8") as log_file:
                 log_file.write(f"{get_time_str()} {command}\n")

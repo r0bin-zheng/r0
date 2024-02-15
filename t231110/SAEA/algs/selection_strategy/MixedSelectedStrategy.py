@@ -13,10 +13,12 @@ class MixedSelectedStrategy(BaseSelectionStrategy):
     """
     混合了概率和状态的选择策略
     """
-    def __init__(self, list, rate, use_status, changing_type=None, iter_max=None):
+    def __init__(self, list, rate, use_status, changing_type=None, 
+                 iter_max=None, p_max_first=0.8, p_min_first=0.1,
+                 k=2):
         super().__init__(list)
         self.rate = rate
-        """list中每个选项的被选中的概率"""
+        """list中每个选项的被选中的概率（初始概率）"""
         self.use_status = use_status
         """list中的每个选项是否使用状态选择"""
         self.prev_idx = 0
@@ -30,12 +32,14 @@ class MixedSelectedStrategy(BaseSelectionStrategy):
         - "FirstStageDecreasesLinearly" 首阶段概率线性下降
         - "FirstStageDecreasesNonlinearly" 首阶段概率非线性下降
         """
-        self.p_max_first = 0.8
+        self.p_max_first = p_max_first
         """首阶段的最大概率"""
-        self.p_min_first = 0.1
+        self.p_min_first = p_min_first
         """首阶段的最小概率"""
         self.iter_max = iter_max
         """算法的最大迭代次数，用于计算概率变化时量化算法进度"""
+        self.k = k
+        """非线性下降的指数，k越大下降越快，k=1时为线性下降"""
 
     def check(self):
         """
@@ -73,7 +77,7 @@ class MixedSelectedStrategy(BaseSelectionStrategy):
                 p_first = (self.iter_max - iter) / self.iter_max * (self.p_max_first - self.p_min_first) + self.p_min_first
             elif self.changing_type == "FirstStageDecreasesNonlinearly":
                 # 公式：p = ((iter_max - iter) / iter_max)^k * (p_max - p_min) + p_min
-                k = 1 # k值越大，下降越快；k=1时为线性下降
+                k = self.k # k值越大，下降越快；k=1时为线性下降
                 p_first = ((self.iter_max - iter) / self.iter_max) ** k * (self.p_max_first - self.p_min_first) + self.p_min_first
             self.rate = np.array([p_first, 1 - p_first])
         else:

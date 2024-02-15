@@ -201,21 +201,43 @@ class SAEA_Base:
         self.draw_surr_2d_gif(10, True, self.name)
         self.draw_value_best()
 
+    def toStr(self):
+        # return f"alg: {self.name}\nproblem: {self.fitfunction_name}\n\
+        # dim: {self.dim}\ninit_size: {self.init_size}\npop_size: {self.pop_size}\n\
+        #     fit_max: {self.fit_max}\niter_max: {self.iter_max}\n\
+        #         range_min_list: {self.range_min_list}\nrange_max_list: {self.range_max_list}\n\
+        #             is_cal_max: {self.is_cal_max}\nsurr_type: {self.surr_type}\n\
+        #                 ea_type: {self.ea_type}\n"
+        str = f"alg: {self.name}\n"
+        str += f"problem: {self.fitfunction_name}\n"
+        str += f"dim: {self.dim}\n"
+        str += f"init_size: {self.init_size}\n"
+        str += f"pop_size: {self.pop_size}\n"
+        str += f"fit_max: {self.fit_max}\n"
+        str += f"iter_max: {self.iter_max}\n"
+        str += f"range_min_list: {self.range_min_list}\n"
+        str += f"range_max_list: {self.range_max_list}\n"
+        str += f"is_cal_max: {self.is_cal_max}\n"
+        str += f"surr_type: {self.surr_type}\n"
+        str += f"ea_type: {self.ea_type}\n"
+        return str
+
     def save_result(self):
         with open('result.txt', 'w') as f:
             f.write(f"--------------------------------------Info--------------------------------------\n")
-            f.write(f"alg: {self.name}\n")
-            f.write(f"problem: {self.fitfunction_name}\n")
-            f.write(f"dim: {self.dim}\n")
-            f.write(f"init_size: {self.init_size}\n")
-            f.write(f"pop_size: {self.pop_size}\n")
-            f.write(f"fit_max: {self.fit_max}\n")
-            # f.write(f"iter_max: {self.iter_max}\n")
-            f.write(f"range_min_list: {self.range_min_list}\n")
-            f.write(f"range_max_list: {self.range_max_list}\n")
-            f.write(f"is_cal_max: {self.is_cal_max}\n")
-            f.write(f"surr_type: {self.surr_type}\n")
-            f.write(f"ea_type: {self.ea_type}\n")
+            f.write(self.toStr())
+            # f.write(f"alg: {self.name}\n")
+            # f.write(f"problem: {self.fitfunction_name}\n")
+            # f.write(f"dim: {self.dim}\n")
+            # f.write(f"init_size: {self.init_size}\n")
+            # f.write(f"pop_size: {self.pop_size}\n")
+            # f.write(f"fit_max: {self.fit_max}\n")
+            # # f.write(f"iter_max: {self.iter_max}\n")
+            # f.write(f"range_min_list: {self.range_min_list}\n")
+            # f.write(f"range_max_list: {self.range_max_list}\n")
+            # f.write(f"is_cal_max: {self.is_cal_max}\n")
+            # f.write(f"surr_type: {self.surr_type}\n")
+            # f.write(f"ea_type: {self.ea_type}\n")
 
             f.write(
                 f"--------------------------------------Result--------------------------------------\n")
