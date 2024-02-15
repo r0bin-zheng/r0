@@ -2,6 +2,7 @@
 import sys
 sys.path.append(r"/home/robin/projects/t231101/t231110")
 
+import json
 import os
 import itertools
 import subprocess
@@ -35,22 +36,35 @@ def get_all_exp_settings():
     ]
 
     dims = [
-        10,
+        2,
     ]
 
     fit_max = [
-        1000,
+        200,
+    ]
+
+    surr_types = [
+        "smt_kplsk+smt_rbf@sklearn_gpr"
     ]
 
     selection_strategies = [
         # "JustGlobal",
-        "JustLocal",
+        # "JustLocal",
         # "HalfHalf",
         # "MixedLinearly",
-        # "MixedNonlinearly",
+        "MixedNonlinearly",
     ]
 
-    return itertools.product(problems, algs, dims, fit_max, selection_strategies)
+    fwa_wt_strategies = [
+        "NoUncertainty",
+        "Constant",
+        "LinearDecrease",
+        "ExponentialDecrease",
+        "NegativeCorrelation",
+    ]
+
+    return itertools.product(problems, algs, dims, fit_max, surr_types,
+                              selection_strategies, fwa_wt_strategies)
 
 def init():
     os.makedirs("./exp", exist_ok=True)
@@ -62,10 +76,11 @@ def run_tasks():
 
     with tqdm(total=len(exp_list), desc="Processing", unit="it") as pbar:
         for exp in exp_list:
-            problem, alg, dim, fit_max, ss = exp
+            problem, alg, dim, fit_max, surr, ss, fws = exp
+            # surr = json.dumps(surr).replace(" ", "__spacem3__")
             id = get_id()
             os.makedirs(f"./exp/{id}", exist_ok=True)
-            command = f"python script.py -p {problem} -a {alg} -i {id} -d {dim} -m {fit_max} -s {ss}"
+            command = f"python script.py -p {problem} -a {alg} -i {id} -d {dim} -m {fit_max} --surr {surr} -s {ss} --fwa_wt_strategy {fws}"
             with open(f"./exp/{id}/output.txt", "w", encoding="utf-8") as output_file, open(
                 "./log.txt", "a", encoding="utf-8") as log_file:
                 log_file.write(f"{get_time_str()} {command}\n")

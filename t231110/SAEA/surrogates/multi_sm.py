@@ -21,7 +21,7 @@ class MultiSurrogate(SurrogateModel):
         """
         self.variance_strategy = "mean"
         """
-        代理模型集合的方差策略
+        代理模型集合的不确定性策略
         - mean: 平均值
         - min: 最小值
         - max: 最大值
@@ -55,6 +55,12 @@ class MultiSurrogate(SurrogateModel):
             return np.min([m.predict_one(X) for m in self.model], axis=0)
         elif self.predict_strategy == "max":
             return np.max([m.predict_one(X) for m in self.model], axis=0)
+        
+    def predict_each_model(self, X):
+        """
+        每个模型单独预测
+        """
+        return np.array([m.predict(X) for m in self.model])
     
     def predict_variances(self, X):
         var_for_each_model = []

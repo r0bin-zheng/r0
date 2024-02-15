@@ -27,8 +27,8 @@ class HSAEA_Base(SAEA_Base):
                  selection_strategy=None):
         ea_type = ea_types[0]
         surr_type = surr_types[0]
-        super().__init__(dim, init_size, pop_size, surr_type, ea_type, fit_max,
-                         iter_max, range_min_list, range_max_list, is_cal_max, surr_setting)
+        super().__init__(dim, init_size, pop_size, surr_type, ea_type, fit_max, iter_max, 
+                         range_min_list, range_max_list, is_cal_max, surr_setting)
         self.name = 'HSAEA_Base'
         self.pop_size_local = 30
         """局部代理模型训练样本数量，当数字大于1时为数量，当数字小于等于1时为比例"""
@@ -54,7 +54,8 @@ class HSAEA_Base(SAEA_Base):
         """局部进化算法设置"""
         self.ea_factory_global = self.ea_factory
         """全局进化算法工厂"""
-        self.ea_factory_local = Ea_Factory(ea_types[1], dim, pop_size, iter_max, range_min_list, range_max_list, is_cal_max)
+        self.ea_factory_local = Ea_Factory(ea_types[1], dim, pop_size, iter_max, 
+                                           range_min_list, range_max_list, is_cal_max)
         """局部进化算法工厂"""
         self.use_local = False
         """使用局部代理的flag"""

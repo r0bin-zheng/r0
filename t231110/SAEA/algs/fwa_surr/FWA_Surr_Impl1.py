@@ -18,8 +18,9 @@ from SAEA.utils.common1 import avoid_duplicates_roulette
 
 
 class FWA_Surr_Impl1(FWA_Surr):
-    def __init__(self, dim, size, iter_max, range_min_list, range_max_list, alpha=0.6, beta=0.5):
-        super().__init__(dim, size, iter_max, range_min_list, range_max_list, alpha, beta)
+    def __init__(self, dim, size, iter_max, range_min_list, range_max_list, 
+                 alpha=0.6, beta=0.5, gamma=0.3, delta=0.5):
+        super().__init__(dim, size, iter_max, range_min_list, range_max_list)
         self.name = 'FWA_Surr_Impl1'
         """烟花振幅最小值"""
         self.amplitude_min = None
@@ -29,7 +30,9 @@ class FWA_Surr_Impl1(FWA_Surr):
         self.CF = None
         self.CF_amplitude = None
         self.expansion_factor = 1.2
+        """CF振幅扩张因子"""
         self.reduction_factor = 0.9
+        """CF振幅下降因子"""
         
 
     def init(self):
@@ -246,3 +249,10 @@ class FWA_Surr_Impl1(FWA_Surr):
         t = iter
         t_max = self.iter_max
         self.amplitude_min = A_i - (A_i - A_f) * (math.sqrt(t * (2 * t_max - t))) / t_max
+
+    def toStr(self):
+        str = super().toStr()
+        str += f"amplitude_min: {self.amplitude_min}\n"
+        str += f"expansion_factor: {self.expansion_factor}\n"
+        str += f"reduction_factor: {self.reduction_factor}\n"
+        return str

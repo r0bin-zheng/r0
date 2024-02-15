@@ -12,6 +12,7 @@ from EA.algs.base.unit import Unit
 
 class Algorithm_Impl:
     def __init__(self, dim, size, iter_max, range_min_list, range_max_list):
+        self.name = 'EA_Base(Algorithm_Impl)'
 
         # 维度
         self.dim = dim
@@ -114,35 +115,28 @@ class Algorithm_Impl:
             unit.position = unit_list[i].position.copy()
             unit.fitness = self.fitfunction(X=unit.position)
             self.unit_list.append(unit)
+
+    def toStr(self):
+        str = f"name: {self.name}\n"
+        str += f"dim: {self.dim}\n"
+        str += f"size: {self.size}\n"
+        str += f"iter_max: {self.iter_max}\n"
+        str += f"range_min_list: {self.range_min_list}\n"
+        str += f"range_max_list: {self.range_max_list}\n"
+        str += f"is_cal_max: {self.is_cal_max}\n"
+        str += f"fitfunction: {self.fitfunction}\n"
+        str += f"cal_fit_num: {self.cal_fit_num}\n"
+        str += f"silence: {self.silence}\n"
+        str += f"unit_class: {self.unit.__class__.__name__}\n"
+        return str
     
     def save_result(self):
-        import time
         """保存self.value_best_history、self.position_best_history、self.value_best、self.position_best到result.txt"""
         with open('result.txt', 'w') as f:
-
-            # str_time = time.strftime("%Y-%m-%d %H:%M:%S", self.time)
-
-            # f.write(
-            #     f"--------------------------------------Info--------------------------------------\n")
-            # f.write(f"ID: {self.id}\n")
-            # f.write(f"Path: {self.path}\n")
-            # f.write(f"Time: {str_time}\n")
-            # f.write(f"Success: {self.success}\n")
-
-            # f.write(
-            #     f"--------------------------------------Problem--------------------------------------\n")
-            # f.write(f"Problem: {self.problem_name}\n")
-            # f.write(f"Number of objects: {self.n_obj}\n")
-            # f.write(f"Number of variables: {self.n_var}\n")
-
-            # f.write(
-            #     f"--------------------------------------Algorithm--------------------------------------\n")
-            # f.write(f"Algorithm choice: {self.alg}\n")
-            # f.write(f"Phase list: {self.phase_list} ({phases})\n")
-            # f.write(f"Phase strategy: {strategy_list[self.strategy]}\n")
-            # f.write(f"First phase rate: {self.rate}\n")
-            # f.write(f"Population size: {self.mu}\n")
-            # f.write(f"Maximum number of function evaluations: {self.max_fe}\n")
+            f.write(
+                f"--------------------------------------Info--------------------------------------\n")
+            algo_str = self.toStr()
+            f.write(algo_str)
 
             f.write(
                 f"--------------------------------------Result--------------------------------------\n")

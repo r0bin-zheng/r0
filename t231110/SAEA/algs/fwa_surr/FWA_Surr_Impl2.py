@@ -12,8 +12,10 @@ from SAEA.algs.fwa_surr.FWA_Surr_Impl1 import FWA_Surr_Impl1
 
 
 class FWA_Surr_Impl2(FWA_Surr_Impl1):
-    def __init__(self, dim, size, iter_max, range_min_list, range_max_list, alpha=0.6, beta=0.5):
-        super().__init__(dim, size, iter_max, range_min_list, range_max_list, alpha=alpha, beta=beta)
+    def __init__(self, dim, size, iter_max, range_min_list, range_max_list, 
+                 alpha=0.6, beta=0.5, gamma=0.3, delta=0.5):
+        super().__init__(dim, size, iter_max, range_min_list, range_max_list, 
+                         alpha=alpha, beta=beta, gamma=gamma, delta=delta)
         self.name = 'FWA_Surr_Impl2'
 
     def update(self, iter):

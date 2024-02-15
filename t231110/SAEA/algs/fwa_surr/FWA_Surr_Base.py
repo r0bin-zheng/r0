@@ -4,45 +4,94 @@ sys.path.append(r"/home/robin/projects/t231101/t231110")
 
 import numpy as np
 from EA.algs.algorithm_fireworks.FWA_Base import FWA_Base
+from SAEA.algs.fwa_surr.wt_strategy import WT_DICT
+
 
 class FWA_Surr(FWA_Base):
     """
-    烟花算法，结合代理模型改进，基类
+    结合代理模型(surrogate model)的烟花算法基类
+    
     eg.
+    ```
     alg = FWA_Surr(dim=2, size=50, iter_max=50, range_min_list=[-100, -100], range_max_list=[100, 100], is_cal_max=False, iter_max_main=50)
     alg.surr = surr
     alg.w_strategy = 2
+    ```
     """
-    def __init__(self, dim, size, iter_max, range_min_list, range_max_list, alpha=0.6, beta=0.5):
+    def __init__(self, dim, size, iter_max, range_min_list, range_max_list, 
+                 w_strategy_str="NegativeCorrelation", alpha=0.6, beta=0.5, gamma=0.3, delta=0.5):
         super().__init__(dim, size, iter_max, range_min_list, range_max_list)
         self.name = 'FWA_Surr'
         self.surr = None
-        """循环迭代次数"""
+        """代理模型"""
+
+        # 算法参数
         self.iter_num = 0
-        """主循环迭代次数"""
+        """循环迭代次数"""
         self.iter_num_main = None
-        """主循环迭代次数最大值"""
+        """主循环迭代次数"""
         self.iter_max_main = None
-        """权重因子计算策略"""
-        self.w_strategy = 1
-        """权重因子计算策略1的参数"""
+        """主循环迭代次数最大值"""
+        self.w_strategy_str = w_strategy_str
+        """权重因子计算策略字符串"""
+        self.w_strategy = None
+        """
+        权重因子计算策略
+
+        类型：int
+        - 1: 随迭代次数指数衰减
+        - 2: 随迭代次数线性衰减
+        - 3: 和皮尔逊相关系数呈负相关
+        - 4: 固定不确定性的权重
+        """
         self.alpha = alpha
-        """权重因子计算策略2的参数"""
+        """权重因子计算策略1的参数，控制基于指数下降的不确定性的权重"""
         self.beta = beta
-        """权重因子"""
+        """权重因子计算策略2的参数，控制基于线性下降的不确定性的权重"""
+        self.gamma = gamma
+        """
+        权重因子计算策略3的参数，控制基于皮尔逊相关系数的不确定性的权重
+        最大值0.5，最小值0.0
+        """
+        self.delta = delta
+        """权重因子计算策略4的参数，固定不确定性的权重"""
+
+        # 中间值，非参数
         self.WT = None
+        """权重因子"""
         self.pop_fitness_max = None
+        """该变量用于当前种群适应度最大值"""
         self.pop_fitness_min = None
+        """该变量用于当前种群适应度最小值"""
         self.pop_uncertainty_max = None
+        """该变量用于当前种群不确定性最大值"""
         self.pop_uncertainty_min = None
+        """该变量用于当前种群不确定性最小值"""
+
         self.use_variances = True
+        """用于指示该算法是否使用代理模型的不确定性"""
 
     def init(self):
         """初始化种群，由于SAEA框架中的一部分，初始化种群工作将在主算法完成"""
+        self.set_w_strategy()
         self.position_best = np.zeros(self.dim)
         self.value_best_history = []
         self.position_best_history = []
         self.value_best = -np.finfo(np.float64).max
+    
+    def set_w_strategy(self, w_strategy_str=None):
+        """初始化不确定性权重计算策略"""
+        key = w_strategy_str if w_strategy_str else self.w_strategy_str
+        wt_setting = WT_DICT[key]
+        self.w_strategy = wt_setting["w_strategy"]
+        if self.w_strategy == 1:
+            self.alpha = wt_setting["alpha"]
+        elif self.w_strategy == 2:
+            self.beta = wt_setting["beta"]
+        elif self.w_strategy == 3:
+            self.gamma = wt_setting["gamma"]
+        elif self.w_strategy == 4:
+            self.delta = wt_setting["delta"]
 
     def update(self, iter):
         self.iter_num = iter
@@ -227,9 +276,29 @@ class FWA_Surr(FWA_Base):
             if self.w_strategy == 1:
                 """计算权重因子，随迭代次数指数衰减"""
                 self.WT = 1 / (1 + self.alpha * T)
+
             elif self.w_strategy == 2:
                 """计算权重因子，随迭代次数线性衰减"""
                 self.WT = max(0, self.beta * (1 - T / self.iter_max_main))
+
+            elif self.w_strategy == 3:
+                """计算权重因子，和皮尔逊相关系数呈负相关"""
+                n_samples = 20 # 随机采样个数
+                X = np.random.uniform(self.range_min_list, self.range_max_list, (n_samples, self.dim))
+                y = self.surr.predict_each_model(X)
+                corr_matrix = np.corrcoef(y)  # 计算相关系数矩阵
+                n = y.shape[0]
+                k = 1  # 从对角线上方一行开始
+                upper_triangle_indices = np.triu_indices(n=n, k=k) # 获取上三角的索引
+                unique_corr_values = corr_matrix[upper_triangle_indices]
+                avg_unique_corr = np.mean(unique_corr_values) # 计算代理模型集合的平均相关系数
+                self.WT = self.gamma * (1 - avg_unique_corr)
+                # print("WT: ", self.WT, " avg_unique_corr: ", avg_unique_corr)
+            
+            elif self.w_strategy == 4:
+                """计算权重因子，固定不确定性的权重"""
+                self.WT = self.delta
+
             # print("WT: ", self.WT)
         return self.WT
         
@@ -252,3 +321,21 @@ class FWA_Surr(FWA_Base):
         self.pop_fitness_min = fitness_min
         self.pop_uncertainty_max = uncertainty_max
         self.pop_uncertainty_min = uncertainty_min
+
+    def toStr(self):
+        str = super().toStr()
+        str += f"iter_num: {self.iter_num}\n"
+        str += f"iter_num_main: {self.iter_num_main}\n"
+        str += f"iter_max_main: {self.iter_max_main}\n"
+        str += f"w_strategy_str: {self.w_strategy_str}\n"
+        str += f"w_strategy: {self.w_strategy}\n"
+        str += f"alpha: {self.alpha}\n"
+        str += f"beta: {self.beta}\n"
+        str += f"gamma: {self.gamma}\n"
+        str += f"delta: {self.delta}\n"
+        str += f"WT: {self.WT}\n"
+        # str += f"pop_fitness_max: {self.pop_fitness_max}\n"
+        # str += f"pop_fitness_min: {self.pop_fitness_min}\n"
+        # str += f"pop_uncertainty_max: {self.pop_uncertainty_max}\n"
+        # str += f"pop_uncertainty_min: {self.pop_uncertainty_min}\n"
+        return str

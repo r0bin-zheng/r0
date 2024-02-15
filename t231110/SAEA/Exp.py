@@ -27,14 +27,14 @@ class Exp:
                     "p_max_first": 0.8,
                     "p_min_first": 0.1,
                     "k": 2
-                }):
+                }, fws="NegativeCorrelation"):
         self.id = self.get_id() if id is None else id
 
         # 问题
         self.problem_name = problem_name
         self.problem = None
 
-        # 算法
+        # SAEA算法参数
         self.alg_name = alg_name
         self.alg = None
         self.dim = dim
@@ -51,10 +51,16 @@ class Exp:
         """代理模型类型，二维数组，第一维为全局代理模型，第二维为局部代理模型"""
         self.ea_types = ea_types
         """进化算法类型，二维数组，第一维为全局进化算法，第二维为局部进化算法"""
+
+        # HSAEA算法参数
         self.selection_strategy = selection_strategy
         """选择策略"""
         self.ss_args = ss_args
         """选择策略参数"""
+        
+        # FWA_Surr算法参数
+        self.fws = fws
+        """不确定性权重计算策略"""
 
         self.start_time = None
         self.end_time = None
@@ -117,7 +123,13 @@ class Exp:
 
         alg_class = get_alg(self.alg_name)
         if "HSAEA" in self.alg_name:
-            self.alg = alg_class(self.dim, self.init_size, self.pop_size, self.surr_types, 
+            if "FD_HSAEA" in self.alg_name:
+                self.alg = alg_class(self.dim, self.init_size, self.pop_size, self.surr_types, 
+                                     self.ea_types, self.fit_max, self.iter_max,
+                                     range_min_list, range_max_list, is_cal_max, surr_setting,
+                                     selection_strategy=selection_strategy, fws=self.fws)
+            else:
+                self.alg = alg_class(self.dim, self.init_size, self.pop_size, self.surr_types, 
                                  self.ea_types, self.fit_max, self.iter_max,
                                  range_min_list, range_max_list, is_cal_max, surr_setting,
                                  selection_strategy=selection_strategy)

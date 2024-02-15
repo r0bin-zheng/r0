@@ -21,7 +21,8 @@ class SAEA_Base:
     """
     代理模型辅助进化算法基类
     """
-    def __init__(self, dim, init_size, pop_size, surr_types, ea_type, fit_max, iter_max, range_min_list, range_max_list, is_cal_max, surr_setting=None):
+    def __init__(self, dim, init_size, pop_size, surr_types, ea_type, fit_max, iter_max, 
+                 range_min_list, range_max_list, is_cal_max, surr_setting=None):
         self.name = 'SAEA'
         self.dim = dim
         self.init_size = init_size
@@ -202,12 +203,6 @@ class SAEA_Base:
         self.draw_value_best()
 
     def toStr(self):
-        # return f"alg: {self.name}\nproblem: {self.fitfunction_name}\n\
-        # dim: {self.dim}\ninit_size: {self.init_size}\npop_size: {self.pop_size}\n\
-        #     fit_max: {self.fit_max}\niter_max: {self.iter_max}\n\
-        #         range_min_list: {self.range_min_list}\nrange_max_list: {self.range_max_list}\n\
-        #             is_cal_max: {self.is_cal_max}\nsurr_type: {self.surr_type}\n\
-        #                 ea_type: {self.ea_type}\n"
         str = f"alg: {self.name}\n"
         str += f"problem: {self.fitfunction_name}\n"
         str += f"dim: {self.dim}\n"
@@ -226,18 +221,6 @@ class SAEA_Base:
         with open('result.txt', 'w') as f:
             f.write(f"--------------------------------------Info--------------------------------------\n")
             f.write(self.toStr())
-            # f.write(f"alg: {self.name}\n")
-            # f.write(f"problem: {self.fitfunction_name}\n")
-            # f.write(f"dim: {self.dim}\n")
-            # f.write(f"init_size: {self.init_size}\n")
-            # f.write(f"pop_size: {self.pop_size}\n")
-            # f.write(f"fit_max: {self.fit_max}\n")
-            # # f.write(f"iter_max: {self.iter_max}\n")
-            # f.write(f"range_min_list: {self.range_min_list}\n")
-            # f.write(f"range_max_list: {self.range_max_list}\n")
-            # f.write(f"is_cal_max: {self.is_cal_max}\n")
-            # f.write(f"surr_type: {self.surr_type}\n")
-            # f.write(f"ea_type: {self.ea_type}\n")
 
             f.write(
                 f"--------------------------------------Result--------------------------------------\n")

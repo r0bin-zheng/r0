@@ -130,3 +130,12 @@ class FWA_Base(Algorithm_Impl):
         values = np.array([unit.fitness for unit in self.unit_list])
         best_id = np.argmax(values)
         return best_id
+    
+    def toStr(self):
+        str = super().toStr()
+        str += f"m: {self.m}\n"
+        str += f"a: {self.a}\n"
+        str += f"b: {self.b}\n"
+        str += f"spec_num: {self.spec_num}\n"
+        str += f"amplitude_max: {self.amplitude_max}\n"
+        return str
