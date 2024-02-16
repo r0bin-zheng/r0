@@ -20,17 +20,37 @@ class FD_HSAEA_Base(HSAEA_Base):
         self.fws = fws
         """FWA_Surr的不确定性权重计算策略"""
 
+        self.global_ea_info = ""
+        """全局EA信息"""
+        self.local_ea_info = ""
+        """局部EA信息"""
+        self.ea_info_flag = [True, True]
+
     def get_optimizer(self):
         """
         获取优化器
         """
+        ea = super().get_optimizer()
         if self.use_local == False:
-            ea = super().get_optimizer()
-            ea.set_fws(self.fws)
+            ea.set_w_strategy(self.fws)
+            if self.ea_info_flag[0]:
+                self.global_ea_info = ea.toStr()
+                self.ea_info_flag[0] = False
+        else:
+            if self.ea_info_flag[1]:
+                self.local_ea_info = ea.toStr()
+                self.ea_info_flag[1] = False
+        return ea
 
     def toStr(self):
         str = super().toStr()
         str += "fws: {}\n".format(self.fws)
+        str += "\n"
+        str += "global_ea_info\n"
+        str += self.global_ea_info
+        str += "\n"
+        str += "local_ea_info\n"
+        str += self.local_ea_info
         return str
 
 

@@ -81,7 +81,8 @@ class FWA_Surr(FWA_Base):
     
     def set_w_strategy(self, w_strategy_str=None):
         """初始化不确定性权重计算策略"""
-        key = w_strategy_str if w_strategy_str else self.w_strategy_str
+        key = w_strategy_str if w_strategy_str is not None else self.w_strategy_str
+        self.w_strategy_str = key
         wt_setting = WT_DICT[key]
         self.w_strategy = wt_setting["w_strategy"]
         if self.w_strategy == 1:

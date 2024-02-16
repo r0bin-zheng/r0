@@ -23,6 +23,10 @@ class DE_Surr_Base(DE_Base):
         self.value_best = -np.finfo(np.float64).max
 
     def choose(self):
+        """
+        选择操作，根据代理模型预测结果选择
+        由于使用代理模型，使用批量预测代替单个预测来提升效率
+        """
         pos_new_list = []
         idx_list = []
         for i in range(self.size):
@@ -36,8 +40,3 @@ class DE_Surr_Base(DE_Base):
             if new_value > self.unit_list[idx_list[i]].fitness:
                 self.unit_list[idx_list[i]].fitness = new_value
                 self.unit_list[idx_list[i]].position = self.unit_list[idx_list[i]].position_new.copy()
-        # for i in range(self.size):
-        #     new_value = fitness_list[i]
-        #     if new_value > self.unit_list[i].fitness:
-        #         self.unit_list[i].fitness = new_value
-        #         self.unit_list[i].position = self.unit_list[i].position_new.copy()

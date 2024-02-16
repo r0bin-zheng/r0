@@ -5,6 +5,8 @@ from EA.algs.algorithm_fireworks.FWA_Base import FWA_Base
 from EA.algs.algorithm_fireworks.FWA_Impl import FWA_Impl
 from EA.algs.differential_evolution.DE_Base import DE_Base
 from EA.algs.differential_evolution.DE_Impl import DE_Impl
+from EA.algs.algorithm_particle_swarm.PSO_Base import PSO_Base
+from EA.algs.algorithm_genetic.GA_Base import GA_Base
 from SAEA.algs.fwa_surr.FWA_Surr_Base import FWA_Surr
 from SAEA.algs.fwa_surr.FWA_Surr_Impl1 import FWA_Surr_Impl1
 from SAEA.algs.fwa_surr.FWA_Surr_Impl2 import FWA_Surr_Impl2
@@ -12,9 +14,14 @@ from SAEA.algs.de_surr.DE_Surr_Base import DE_Surr_Base
 
 
 alg_dict = {
+    "PSO": PSO_Base,
+
+    "GA": GA_Base,
+
     "DE": DE_Base,
     "DE_Impl": DE_Impl,
     "DE_Surr_Base": DE_Surr_Base,
+
     "FWA": FWA_Base,
     "FWA_Impl": FWA_Impl,
     "FWA_Surr": FWA_Surr,

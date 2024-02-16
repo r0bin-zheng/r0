@@ -65,6 +65,8 @@ class HSAEA_Base(SAEA_Base):
         """设计空间上界"""
         self.global_p_init = 0.8
         """全局搜索的初始概率"""
+        self.selection_strategy_name = "MixedNonlinearly"
+        """选择策略名称"""
         self.selection_strategy = MixedSelectedStrategy(
             ["Global", "Local"],
             [self.global_p_init, 1.0 - self.global_p_init],
@@ -209,46 +211,21 @@ class HSAEA_Base(SAEA_Base):
         
         phase = self.selection_strategy.select(flag=(value_best > value_best_prev), iter=self.iter_num)
         self.use_local = phase == "Local"
-
         print("[Surrogate] ", "LOCAL" if self.use_local else "GLOBAL")
-        
-        
-        # if self.use_local:
-        #     # 如果局部代理模型的最优值大于上一代的最优值，则继续使用局部代理模型
-        #     if value_best > value_best_prev:
-        #         self.use_local = True
-        #     else:
-        #         self.use_local = False
-        # else:
-        #     # 如果全局代理模型的最优值大于上一代的最优值，则继续使用全局代理模型
-        #     if value_best > value_best_prev:
-        #         self.use_local = False
-        #     else:
-        #         self.use_local = True
     
     def toStr(self):
         # 打印选择策略的类名称
         select_strategy_class = self.selection_strategy.__class__.__name__
-        # return super().toStr() + f" HSAEA_Base: use_local={self.use_local}\n\
-        #     selection_strategy={select_strategy_class}\n\
-        #     surr_type_global={self.surr_type_global}\n\
-        #     surr_type_local={self.surr_type_local}\n\
-        #     ea_type_global={self.ea_type_global}\n\
-        #     ea_type_local={self.ea_type_local}\n\
-        #     pop_size_local={self.pop_size_local}\n\
-        #     range_min_list_local={self.range_min_list_local}\n\
-        #     range_max_list_local={self.range_max_list_local}\n\
-        #     global_p_init={self.global_p_init}\n\
-        #     selection_strategy={select_strategy_class}\n"
         str = super().toStr()
-        str += f"HSAEA_Base: use_local={self.use_local}\n"
-        str += f"surr_type_global={self.surr_type_global}\n"
-        str += f"surr_type_local={self.surr_type_local}\n"
-        str += f"ea_type_global={self.ea_type_global}\n"
-        str += f"ea_type_local={self.ea_type_local}\n"
-        str += f"pop_size_local={self.pop_size_local}\n"
-        str += f"range_min_list_local={self.range_min_list_local}\n"
-        str += f"range_max_list_local={self.range_max_list_local}\n"
-        str += f"global_p_init={self.global_p_init}\n"
-        str += f"selection_strategy={select_strategy_class}\n"
+        str += f"use_local: {self.use_local}\n"
+        str += f"surr_type_global: {self.surr_type_global}\n"
+        str += f"surr_type_local: {self.surr_type_local}\n"
+        str += f"ea_type_global: {self.ea_type_global}\n"
+        str += f"ea_type_local: {self.ea_type_local}\n"
+        str += f"pop_size_local: {self.pop_size_local}\n"
+        str += f"range_min_list_local: {self.range_min_list_local}\n"
+        str += f"range_max_list_local: {self.range_max_list_local}\n"
+        str += f"global_p_init: {self.global_p_init}\n"
+        str += f"selection_strategy_name: {self.selection_strategy_name}\n"
+        str += f"selection_strategy: {select_strategy_class}\n"
         return str

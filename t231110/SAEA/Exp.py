@@ -133,6 +133,7 @@ class Exp:
                                  self.ea_types, self.fit_max, self.iter_max,
                                  range_min_list, range_max_list, is_cal_max, surr_setting,
                                  selection_strategy=selection_strategy)
+            self.alg.selection_strategy_name = self.selection_strategy
         else:
             self.alg = alg_class(self.dim, self.init_size, self.pop_size, self.surr_types[0], 
                                  self.ea_types[0], self.fit_max, self.iter_max,

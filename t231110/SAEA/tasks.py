@@ -29,7 +29,8 @@ def get_all_exp_settings():
     ]
 
     algs = [
-        "HSAEA",
+        "FD_HSAEA",
+        # "HSAEA",
         # "DE_SAEA_Base",
         # "FWA_SAEA",
         # "SAEA",
@@ -44,7 +45,14 @@ def get_all_exp_settings():
     ]
 
     surr_types = [
-        "smt_kplsk+smt_rbf@sklearn_gpr"
+        # "smt_kplsk+smt_rbf@sklearn_gpr",
+        # "smt_kplsk+smt_rbf@smt_rbf",
+        # "smt_kplsk+smt_rbf@smt_kplsk",
+        # "smt_kplsk+smt_rbf@smt_kriging",
+        "smt_kplsk+smt_kriging@smt_kplsk",
+        # "smt_kplsk+sklearn_gpr@smt_kplsk",
+        # "smt_kplsk+smt_rbf@smt_kplsk",
+        # "smt_kplsk+sklearn_gpr@smt_kplsk+smt_rbf",
     ]
 
     selection_strategies = [
@@ -56,10 +64,10 @@ def get_all_exp_settings():
     ]
 
     fwa_wt_strategies = [
-        "NoUncertainty",
-        "Constant",
-        "LinearDecrease",
-        "ExponentialDecrease",
+        # "NoUncertainty",
+        # "Constant",
+        # "LinearDecrease",
+        # "ExponentialDecrease",
         "NegativeCorrelation",
     ]
 
@@ -74,22 +82,24 @@ def run_tasks():
     exps = get_all_exp_settings()
     exp_list = list(exps)
 
-    with tqdm(total=len(exp_list), desc="Processing", unit="it") as pbar:
+    reqeated = 1
+
+    with tqdm(total=len(exp_list)*reqeated, desc="Processing", unit="it") as pbar:
         for exp in exp_list:
             problem, alg, dim, fit_max, surr, ss, fws = exp
-            # surr = json.dumps(surr).replace(" ", "__spacem3__")
-            id = get_id()
-            os.makedirs(f"./exp/{id}", exist_ok=True)
-            command = f"python script.py -p {problem} -a {alg} -i {id} -d {dim} -m {fit_max} --surr {surr} -s {ss} --fwa_wt_strategy {fws}"
-            with open(f"./exp/{id}/output.txt", "w", encoding="utf-8") as output_file, open(
-                "./log.txt", "a", encoding="utf-8") as log_file:
-                log_file.write(f"{get_time_str()} {command}\n")
-                process = subprocess.Popen(
-                    command, shell=True, stdout=output_file, stderr=subprocess.STDOUT)
-                stdout, stderr = process.communicate()
-                if stderr:
-                    print(stderr)
-                    log_file.write(stderr)
-            pbar.update(1)
+            for i in range(reqeated):
+                id = get_id()
+                os.makedirs(f"./exp/{id}", exist_ok=True)
+                command = f"python script.py -p {problem} -a {alg} -i {id} -d {dim} -m {fit_max} --surr {surr} -s {ss} --fwa_wt_strategy {fws}"
+                with open(f"./exp/{id}/output.txt", "w", encoding="utf-8") as output_file, open(
+                    "./log.txt", "a", encoding="utf-8") as log_file:
+                    log_file.write(f"{get_time_str()} {command}\n")
+                    process = subprocess.Popen(
+                        command, shell=True, stdout=output_file, stderr=subprocess.STDOUT)
+                    stdout, stderr = process.communicate()
+                    if stderr:
+                        print(stderr)
+                        log_file.write(stderr)
+                pbar.update(1)
 
 run_tasks()

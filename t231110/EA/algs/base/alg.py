@@ -59,6 +59,7 @@ class Algorithm_Impl:
             self.update(iter)
 
     def update(self, iter):
+        print("")
         for i in range(self.size):
             if self.unit_list[i].fitness > self.value_best:
                 self.value_best = self.unit_list[i].fitness
@@ -127,7 +128,7 @@ class Algorithm_Impl:
         str += f"fitfunction: {self.fitfunction}\n"
         str += f"cal_fit_num: {self.cal_fit_num}\n"
         str += f"silence: {self.silence}\n"
-        str += f"unit_class: {self.unit.__class__.__name__}\n"
+        str += f"unit_class: {self.unit_class.__class__.__name__}\n"
         return str
     
     def save_result(self):

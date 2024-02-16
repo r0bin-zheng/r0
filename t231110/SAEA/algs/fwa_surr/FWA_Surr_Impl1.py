@@ -20,7 +20,7 @@ from SAEA.utils.common1 import avoid_duplicates_roulette
 class FWA_Surr_Impl1(FWA_Surr):
     def __init__(self, dim, size, iter_max, range_min_list, range_max_list, 
                  alpha=0.6, beta=0.5, gamma=0.3, delta=0.5):
-        super().__init__(dim, size, iter_max, range_min_list, range_max_list)
+        super().__init__(dim, size, iter_max, range_min_list, range_max_list, alpha, beta, gamma, delta)
         self.name = 'FWA_Surr_Impl1'
         """烟花振幅最小值"""
         self.amplitude_min = None

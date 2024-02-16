@@ -38,7 +38,7 @@ def run_task(problem="F12022", alg="DE", dim=2):
 
     # 选择测试函数
     function_name = problem
-    lb, ub, dim, fobj = get_problem_detail(function_name, ndim=10)
+    lb, ub, dim, fobj = get_problem_detail(function_name, ndim=dim)
     print(f'测试函数：{function_name}')
     print(f'搜索空间：{lb} ~ {ub}')
     print(f'维度：{dim}')
@@ -67,12 +67,14 @@ def run_task(problem="F12022", alg="DE", dim=2):
 
 def main():
     # problem = "Griewank"
-    # problem = "Ackley01"
-    problem = "F62005"
+    problem = "Ackley01"
+    # problem = "F62005"
 
-    ndim = 10
-    alg = "DE"
+    ndim = 2
+    # alg = "DE"
     # alg = "FWA"
+    # alg = "PSO"
+    alg = "GA"
     run_task(problem, alg, ndim)
 
 

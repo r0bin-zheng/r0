@@ -7,4 +7,6 @@ from algs.base.unit import Unit
 class PSO_Unit(Unit):
     def __init__(self):
         super().__init__()
+        self.velocity = None
+        self.position_best = None
         
