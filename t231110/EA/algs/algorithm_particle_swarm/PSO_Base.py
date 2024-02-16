@@ -9,6 +9,11 @@ from algs.algorithm_particle_swarm.PSO_Unit import PSO_Unit
 
 
 class PSO_Base(Algorithm_Impl):
+    """
+    粒子群算法基类
+
+    注意: PSO算法中Unit的fitness不是position的函数值，而是position_best的函数值
+    """
     def __init__(self, dim, size, iter_max, range_min_list, range_max_list):
         super().__init__(dim, size, iter_max, range_min_list, range_max_list)
         self.name = 'PSO'
@@ -91,5 +96,5 @@ class PSO_Base(Algorithm_Impl):
                 self.curr_cycle_start = iter
             else:
                 self.W = (self.curr_cycle_end - iter) / (self.curr_cycle_end - self.curr_cycle_start)
-        print("惯性权重：", self.W)
+        # print("惯性权重：", self.W)
         return self.W

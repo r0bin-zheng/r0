@@ -13,6 +13,7 @@ class FWA_SAEA(SAEA_Base):
                          iter_max, range_min_list, range_max_list, is_cal_max, surr_setting)
 
         self.name = 'FWA_SAEA'
+        self.unit_class = FWA_SAEA_Unit
         self.m = 40
         self.a = 0.2
         self.b = 0.8

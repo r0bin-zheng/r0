@@ -72,38 +72,15 @@ class Exp:
         os.makedirs(self.save_path, exist_ok=True)
         os.chdir(self.save_path)
 
-        # 【修改项】维度
-        # dim = 10
-
         lb, ub, dim, fobj = get_problem_detail(self.problem_name, ndim=self.dim)
         print(f'测试函数：{self.problem_name}')
         print(f'搜索空间：{lb} ~ {ub}')
         print(f'维度：{dim}')
+
         self.problem = fobj
-
-        # 【修改项】参数设置
-        # init_size = 100
-        # pop_size = 60
-        # # surr_type = "kriging"
-        # surr_types = [["smt_kplsk"], ["smt_kplsk"]]
-        # ea_type = "FWA_Surr_Impl2"
-        # ea_types = ["FWA_Surr_Impl2", "DE_Surr_Base"]
-        # fit_max = 1000
-        # iter_max = 60
-
-        # init_size = 100
-        # pop_size = 60
-        # # surr_type = "kriging"
-        # surr_types = [["my_sklearn_gpr"], ["smt_kplsk"]]
-        # # surr_types = [["sklearn_gpr"], ["smt_kplsk"]]
-        # ea_type = "FWA_Surr_Impl2"
-        # ea_types = ["FWA_Surr_Impl2", "DE_Surr_Base"]
-        # fit_max = 176
-        # iter_max = 60
-
         is_cal_max = False
 
-        # 【修改项】选择策略
+        # 选择策略
         if "HSAEA" in self.alg_name:
             """HSAEA选择策略参数"""
             selection_strategy = get_selection_strategy(self.selection_strategy, self.ss_args)

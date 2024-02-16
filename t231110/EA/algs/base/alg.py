@@ -59,7 +59,6 @@ class Algorithm_Impl:
             self.update(iter)
 
     def update(self, iter):
-        print("")
         for i in range(self.size):
             if self.unit_list[i].fitness > self.value_best:
                 self.value_best = self.unit_list[i].fitness
@@ -107,14 +106,18 @@ class Algorithm_Impl:
         position_tmp[position > max_list] = position_rand[position > max_list]
         return position_tmp
     
-    def set_unit_list(self, unit_list):
+    def set_unit_list(self, unit_list, surr):
+        X = np.array([ind.position for ind in unit_list])
+        y = surr.predict(X)
+        self.cal_fit_num += len(y)
+
         self.unit_list = []
         for i in range(len(unit_list)):
             if i >= self.size:
                 break
             unit = self.unit_class()
             unit.position = unit_list[i].position.copy()
-            unit.fitness = self.fitfunction(X=unit.position)
+            unit.fitness = y[i]
             self.unit_list.append(unit)
 
     def toStr(self):

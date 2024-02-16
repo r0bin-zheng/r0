@@ -6,6 +6,8 @@ from SAEA.algs.fwa_surr.FWA_SAEA import FWA_SAEA
 from SAEA.algs.de_surr.DE_SAEA_Base import DE_SAEA_Base
 from SAEA.algs.base.HSAEA_Base import HSAEA_Base
 from SAEA.algs.fd_hsaea.FD_HSAEA_Base import FD_HSAEA_Base
+from SAEA.algs.ga_surr.GA_SAEA_Base import GA_SAEA_Base
+from SAEA.algs.pso_surr.PSO_SAEA_Base import PSO_SAEA_Base
 
 
 alg_dict = {
@@ -14,6 +16,8 @@ alg_dict = {
     "FD_HSAEA": FD_HSAEA_Base,
     "FWA_SAEA": FWA_SAEA,
     "DE_SAEA_Base": DE_SAEA_Base,
+    "GA_SAEA_Base": GA_SAEA_Base,
+    "PSO_SAEA_Base": PSO_SAEA_Base,
 }
 
 def get_alg(name):

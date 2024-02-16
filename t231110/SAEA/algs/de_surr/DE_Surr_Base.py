@@ -35,6 +35,7 @@ class DE_Surr_Base(DE_Base):
                 pos_new_list.append(pos)
                 idx_list.append(i)
         fitness_list = self.surr.predict(np.array(pos_new_list))
+        self.cal_fit_num += len(pos_new_list)
         for i in range(len(idx_list)):
             new_value = fitness_list[i]
             if new_value > self.unit_list[idx_list[i]].fitness:

@@ -44,6 +44,13 @@ def get_all_exp_settings():
         200,
     ]
 
+    ea_types = [
+        "FWA_Surr_Impl2+DE_Surr_Base",
+        "DE_Surr_Base+DE_Surr_Base",
+        "PSO_Surr_Base+DE_Surr_Base",
+        "GA_Surr_Base+DE_Surr_Base",
+    ]
+
     surr_types = [
         # "smt_kplsk+smt_rbf@sklearn_gpr",
         # "smt_kplsk+smt_rbf@smt_rbf",

@@ -24,6 +24,7 @@ class SAEA_Base:
     def __init__(self, dim, init_size, pop_size, surr_types, ea_type, fit_max, iter_max, 
                  range_min_list, range_max_list, is_cal_max, surr_setting=None):
         self.name = 'SAEA'
+        self.unit_class = SAEA_Unit
         self.dim = dim
         self.init_size = init_size
         self.pop_size = pop_size
@@ -97,7 +98,7 @@ class SAEA_Base:
         sampling = LHS(xlimits=xlimts)
         init_pop = sampling(self.init_size)
         for i in range(self.init_size):
-            unit = SAEA_Unit()
+            unit = self.unit_class()
             unit.position = init_pop[i]
             unit.fitness_true = self.cal_fitfunction(unit.position)
             self.unit_list.append(unit)
@@ -135,11 +136,11 @@ class SAEA_Base:
         ea = self.ea_factory.get_alg_with_surr(self.surr)
         selected_unit = self.select()
         ea.silence = True
-        ea.set_unit_list(selected_unit)
+        ea.set_unit_list(selected_unit, self.surr)
         return ea
     
     def get_best_unit(self, optimizer):
-        unit = SAEA_Unit()
+        unit = self.unit_class()
         unit.position = optimizer.position_best
         unit.fitness = optimizer.value_best
         return unit

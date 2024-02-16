@@ -112,12 +112,8 @@ class GA_Base(Algorithm_Impl):
         # 更新种群
         for i in range(self.size):
             self.unit_list[i].position = self.temp_unit_list[i].position.copy()
-            self.unit_list[i].fitness = self.temp_unit_list[i].fitness
+            self.unit_list[i].fitness = self.temp_unit_list[i].fitness        
 
-        # 计算重复数量
-        
-
-    
     def get_roulette_rate(self, units):
         """根据给定的个体列表计算轮盘赌选择概率"""
         values = np.array([unit.fitness for unit in units])

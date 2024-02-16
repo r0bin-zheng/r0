@@ -11,12 +11,16 @@ from SAEA.algs.fwa_surr.FWA_Surr_Base import FWA_Surr
 from SAEA.algs.fwa_surr.FWA_Surr_Impl1 import FWA_Surr_Impl1
 from SAEA.algs.fwa_surr.FWA_Surr_Impl2 import FWA_Surr_Impl2
 from SAEA.algs.de_surr.DE_Surr_Base import DE_Surr_Base
+from SAEA.algs.ga_surr.GA_Surr_Base import GA_Surr_Base
+from SAEA.algs.pso_surr.PSO_Surr_Base import PSO_Surr_Base
 
 
 alg_dict = {
     "PSO": PSO_Base,
+    "PSO_Surr_Base": PSO_Surr_Base,
 
     "GA": GA_Base,
+    "GA_Surr_Base": GA_Surr_Base,
 
     "DE": DE_Base,
     "DE_Impl": DE_Impl,
@@ -52,5 +56,6 @@ class Ea_Factory:
         Alg_Class = get_alg(self.alg_name)
         alg_obj = Alg_Class(self.dim, self.size, self.iter_max, range_min_list, range_max_list)
         alg_obj.fitfunction = surr.predict_one
+        alg_obj.surr = surr
         alg_obj.is_cal_max = True
         return alg_obj
