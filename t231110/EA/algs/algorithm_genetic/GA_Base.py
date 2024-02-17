@@ -9,32 +9,45 @@ from algs.algorithm_genetic.GA_Unit import GA_Unit
 
 
 class GA_Base(Algorithm_Impl):
-    def __init__(self, dim, size, iter_max, range_min_list, range_max_list):
-        super().__init__(dim, size, iter_max, range_min_list, range_max_list)
+    def __init__(self, dim, size, iter_max, range_min_list, range_max_list, 
+                 is_cal_max=True, fitfunction=None, silent=False,
+                 cross_rate=0.8, alter_rate=0.05, cross_strategy=2):
+        super().__init__(dim, size, iter_max, range_min_list, range_max_list,
+                         is_cal_max, fitfunction, silent)
+        
+        # 算法信息
         self.name = 'GA'
-        self.cross_rate = 0.8
+        self.unit_class = GA_Unit
+
+        # 参数
+        self.cross_rate = cross_rate
         """交叉率"""
-        self.alter_rate = 0.05
+        self.alter_rate = alter_rate
         """变异率"""
-        self.temp_unit_list = []
-        """临时种群列表"""
-        self.cross_strategy = 2
+        self.cross_strategy = cross_strategy
         """
         交叉策略
         - 1: 原始交叉
         - 2: 算术交叉
         """
 
-    def init(self):
-        super().init()
-        self.unit_list = []
+        # 运行中间值
         self.temp_unit_list = []
-        for _ in range(self.size):
-            unit = GA_Unit()
-            unit.position = np.random.uniform(self.range_min_list, self.range_max_list)
-            unit.fitness = self.cal_fitfunction(unit.position)
-            self.unit_list.append(unit)
-            self.temp_unit_list.append(unit)
+        """临时种群列表"""
+
+    def init(self, unit_list=[]):
+        """初始化unit_list和temp_unit_list"""
+        super().init(unit_list=unit_list)
+        if len(unit_list) == 0:
+            self.unit_list = []
+            for _ in range(self.size):
+                unit = GA_Unit()
+                unit.position = np.random.uniform(self.range_min_list, self.range_max_list)
+                unit.fitness = self.cal_fitfunction(unit.position)
+                self.unit_list.append(unit)
+        else:
+            self.unit_list = unit_list
+        self.temp_unit_list = [unit for unit in unit_list]
 
     def update(self, iter):
         super().update(iter)
@@ -50,15 +63,6 @@ class GA_Base(Algorithm_Impl):
                 cur_dim = np.random.randint(0, self.dim)
                 rand_pos = np.random.uniform(self.range_min_list[cur_dim], self.range_max_list[cur_dim])
                 self.unit_list[i].position[cur_dim] = rand_pos
-
-    def cross1(self):
-        """交叉操作"""
-        for i in range(0, self.size, 2):
-            if i + 1 < self.size and np.random.rand() < self.cross_rate:
-                cur_dim = np.random.randint(0, self.dim)
-                temp = self.unit_list[i].position[cur_dim]
-                self.unit_list[i].position[cur_dim] = self.unit_list[i + 1].position[cur_dim]
-                self.unit_list[i + 1].position[cur_dim] = temp
 
     def cross(self):
         """交叉操作，包括原始交叉和算术交叉"""

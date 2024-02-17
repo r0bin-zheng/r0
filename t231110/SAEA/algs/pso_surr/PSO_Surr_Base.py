@@ -8,27 +8,34 @@ from EA.algs.algorithm_particle_swarm.PSO_Base import PSO_Base
 
 
 class PSO_Surr_Base(PSO_Base):
-    def __init__(self, dim, size, iter_max, range_min_list, range_max_list):
-        super().__init__(dim, size, iter_max, range_min_list, range_max_list)
+    def __init__(self, dim, size, iter_max, range_min_list, range_max_list, 
+                 is_cal_max=True, fitfunction=None, silent=False,
+                 C1=2, C2=2, W=1, w_strategy=5, surr=None):
+        super().__init__(dim, size, iter_max, range_min_list, range_max_list,
+                         is_cal_max, fitfunction, silent, C1, C2, W, w_strategy)
+        
+        # 算法信息
         self.name = 'PSO_Surr_Base'
-        self.surr = None
         self.use_variances = False
 
-    def init(self):
-        """初始化种群，由于SAEA框架中的一部分，初始化种群工作将在self.set_unit_list完成"""
-        self.position_best = np.zeros(self.dim)
-        self.value_best_history = []
-        self.position_best_history = []
-        self.value_best = -np.finfo(np.float64).max
+        # 参数
+        self.surr = surr
 
-    def set_unit_list(self, unit_list, surr):
-        """设置种群列表，PSO还需要设置unit.velocity"""
-        super().set_unit_list(unit_list, surr)
-        for i in range(len(self.unit_list)):
-            unit = self.unit_list[i]
-            unit.position_best = unit.position
-            unit.velocity = np.random.uniform(-self.velocity_max_list, self.velocity_max_list)
-        self.curr_cycle_end = np.random.randint(3, 30)
+    # def init(self):
+    #     """初始化种群，由于SAEA框架中的一部分，初始化种群工作将在self.set_unit_list完成"""
+    #     self.position_best = np.zeros(self.dim)
+    #     self.value_best_history = []
+    #     self.position_best_history = []
+    #     self.value_best = -np.finfo(np.float64).max
+
+    # def set_unit_list(self, unit_list, surr):
+    #     """设置种群列表，PSO还需要设置unit.velocity"""
+    #     super().set_unit_list(unit_list, surr)
+    #     for i in range(len(self.unit_list)):
+    #         unit = self.unit_list[i]
+    #         unit.position_best = unit.position
+    #         unit.velocity = np.random.uniform(-self.velocity_max_list, self.velocity_max_list)
+    #     self.curr_cycle_end = np.random.randint(3, 30)
 
     def update(self, iter):
         super().update(iter)

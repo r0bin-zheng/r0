@@ -14,18 +14,24 @@ class PSO_Base(Algorithm_Impl):
 
     注意: PSO算法中Unit的fitness不是position的函数值，而是position_best的函数值
     """
-    def __init__(self, dim, size, iter_max, range_min_list, range_max_list):
-        super().__init__(dim, size, iter_max, range_min_list, range_max_list)
+    def __init__(self, dim, size, iter_max, range_min_list, range_max_list, 
+                 is_cal_max=True, fitfunction=None, silent=False,
+                 C1=2, C2=2, W=1, w_strategy=5):
+        super().__init__(dim, size, iter_max, range_min_list, range_max_list,
+                         is_cal_max, fitfunction, silent)
+        
+        # 算法信息
         self.name = 'PSO'
-        self.velocity_max_list = (np.array(range_max_list) - np.array(range_min_list)) * 0.1
-        """速度限制"""
-        self.C1 = 2
+        self.unit_class = PSO_Unit
+
+        # 参数
+        self.C1 = C1
         """自我认知学习因子"""
-        self.C2 = 2
+        self.C2 = C2
         """社会认知学习因子"""
-        self.W = 1
+        self.W = W
         """惯性权重"""
-        self.w_strategy = 5
+        self.w_strategy = w_strategy
         """
         惯性权重策略
         - 1: 固定
@@ -34,21 +40,31 @@ class PSO_Base(Algorithm_Impl):
         - 4: 随机惯性
         - 5: 随机周期线性下降
         """
+
+        # 运行中间值
+        self.velocity_max_list = (np.array(range_max_list) - np.array(range_min_list)) * 0.1
+        """速度限制"""
         self.curr_cycle_start = 1
         """当前周期的开始时间"""
         self.curr_cycle_end = None
         """当惯性权重策略为“随机周期线性下降时”，下一次更新周期的迭代数"""
 
-    def init(self):
-        super().init()
-        self.unit_list = []
-        for i in range(self.size):
-            unit = PSO_Unit()
-            unit.position = np.random.uniform(self.range_min_list, self.range_max_list)
-            unit.position_best = unit.position
+    def init(self, unit_list=[]):
+        """初始化unit_list和其中的position、fitness、position_best、velocity"""
+        super().init(unit_list=unit_list)
+        if len(unit_list) == 0:
+            self.unit_list = []
+            for i in range(self.size):
+                unit = PSO_Unit()
+                unit.position = np.random.uniform(self.range_min_list, self.range_max_list)
+                unit.position_best = unit.position
+                unit.fitness = self.cal_fitfunction(unit.position)
+                self.unit_list.append(unit)
+        else:
+            self.unit_list = unit_list
+        for unit in self.unit_list:
             unit.velocity = np.random.uniform(-self.velocity_max_list, self.velocity_max_list)
-            unit.fitness = self.cal_fitfunction(unit.position)
-            self.unit_list.append(unit)
+            unit.position_best = unit.position
         self.curr_cycle_end = np.random.randint(3, 30)
 
     def update(self, iter):

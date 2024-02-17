@@ -11,50 +11,68 @@ from PIL import Image
 from EA.algs.base.unit import Unit
 
 class Algorithm_Impl:
-    def __init__(self, dim, size, iter_max, range_min_list, range_max_list):
-        self.name = 'EA_Base(Algorithm_Impl)'
-
-        # 维度
+    def __init__(self, dim, size, iter_max, range_min_list, range_max_list, 
+                 is_cal_max=True, fitfunction=None, silent=False):
+        self.name = 'EA_Base'
+        
         self.dim = dim
-        # 种群大小
+        """维度"""
         self.size = size
-        # 最大迭代次数
+        """种群大小"""
         self.iter_max = iter_max
-        # 解空间下界和上界
+        """最大迭代次数"""
         self.range_min_list = range_min_list
+        """解空间下界"""
         self.range_max_list = range_max_list
-        # 默认为最大化
-        self.is_cal_max = True
-        # 适应度函数（需要外部定义）
-        self.fitfunction = None
-        # 适应度函数调用计数
+        """解空间上界"""
+        self.is_cal_max = is_cal_max
+        """是否为最大化问题"""
+        self.fitfunction = fitfunction
+        """适应度函数"""
+        self.silence = silent
+        """是否静默"""
+
         self.cal_fit_num = 0
-        # 是否静默
-        self.silence = False
+        """适应度函数调用次数"""
         self.unit_class = Unit
-
-        # 初始化
+        """个体类"""
+        self.unit_list = []
+        """个体列表"""
         self.position_best = np.zeros(self.dim)
+        """最优个体位置"""
         self.value_best = -np.finfo(np.float64).max
+        """最优个体适应度"""
         self.value_best_history = []
+        """最优个体适应度历史记录"""
         self.position_best_history = []
+        """最优个体位置历史记录"""
 
-    def run(self):
+    def run(self, unit_list=[]):
+        """运行算法"""
         start_time = time.time()
-        self.init()
+        self.init(unit_list)
         self.iteration()
         end_time = time.time()
         self.time_cost = end_time - start_time
         if not self.silence:
             print(f"运行时间: {end_time - start_time}")
 
-    def init(self):
+    def init(self, unit_list=[]):
+        """
+        初始化算法，初始化内容：
+        - 最优个体位置
+        - 最优个体适应度
+        - 最优个体适应度历史记录
+        - 最优个体位置历史记录
+        """
+        self.unit_list = [] if len(unit_list) == 0 else unit_list
         self.position_best = np.zeros(self.dim)
         self.value_best_history = []
         self.position_best_history = []
         self.value_best = -np.finfo(np.float64).max
 
     def iteration(self):
+        """迭代内容，由子类实现"""
         for iter in range(1, self.iter_max + 1):
             self.update(iter)
 
@@ -92,12 +110,14 @@ class Algorithm_Impl:
         return value
 
     def get_out_bound_value(self, position, min_list=None, max_list=None):
+        """边界处理，超出边界的位置将被限制在边界内"""
         min_list = self.range_min_list if min_list is None else min_list
         max_list = self.range_max_list if max_list is None else max_list
         position_tmp = np.clip(position, min_list, max_list)
         return position_tmp
 
     def get_out_bound_value_rand(self, position, min_list=None, max_list=None):
+        """边界处理，超出边界的位置将被随机替换"""
         min_list = self.range_min_list if min_list is None else min_list
         max_list = self.range_max_list if max_list is None else max_list
         position_tmp = position.copy()

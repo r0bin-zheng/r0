@@ -61,7 +61,7 @@ SS_DICT = {
 }
 
 
-def get_selection_strategy(str, args):
+def get_selection_strategy(str, args=None):
     """
     获取选择策略
     """

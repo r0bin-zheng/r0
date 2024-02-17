@@ -20,47 +20,83 @@ from SAEA.surrogates.factory import SurrogateModelFactory
 class SAEA_Base:
     """
     代理模型辅助进化算法基类
+
+    子类编写建议:
+    - 启发式算法的静态参数可以通过`init_ea_factory()`方法设置
+    - 启发式算法的动态参数可以通过`get_optimizer()`方法设置
+    - 代理模型的静态参数可以通过`init_surr_factory()`方法设置
     """
     def __init__(self, dim, init_size, pop_size, surr_types, ea_type, fit_max, iter_max, 
                  range_min_list, range_max_list, is_cal_max, surr_setting=None):
+        
+        # 算法信息
         self.name = 'SAEA'
         self.unit_class = SAEA_Unit
-        self.dim = dim
-        self.init_size = init_size
-        self.pop_size = pop_size
-        self.fit_max = fit_max
-        self.iter_max = iter_max
-        self.range_min_list = range_min_list
-        self.range_max_list = range_max_list
-        self.is_cal_max = is_cal_max
-        self.silence = False
-        self.save_flag = True
-        self.draw_result_flag = True
-        self.draw_gif_flag = False
 
-        self.iter_num = 0
-        self.cal_fit_num = 0
-        self.unit_list = []
+        # 参数
+        self.dim = dim
+        """问题维度"""
+        self.init_size = init_size
+        """初始种群大小"""
+        self.pop_size = pop_size
+        """优化器(进化算法)的种群大小"""
         self.surr_type = surr_types
         """
         代理模型类型
         type: list
         """
-        # self.surr_factory = SurrogateFactory([surr_type], surr_setting)
-        self.surr_factory = SurrogateModelFactory(surr_types, surr_setting)
         self.ea_type = ea_type
-        self.ea_factory = Ea_Factory(ea_type, dim, pop_size, iter_max, range_min_list, range_max_list, is_cal_max)
+        """优化器(进化算法)类型"""
+        self.fit_max = fit_max
+        """真实适配度函数调用次数上限"""
+        self.iter_max = iter_max
+        """优化器迭代次数上限"""
+        self.range_min_list = range_min_list
+        """问题范围下界"""
+        self.range_max_list = range_max_list
+        """问题范围上界"""
+        self.is_cal_max = is_cal_max
+        """是否求最大值"""
+        self.surr_setting = surr_setting
+        """代理模型设置"""
+        self.silence = False
+        """是否静默"""
+        self.save_flag = True
+        """是否保存结果"""
+        self.draw_result_flag = True
+        """是否绘制结果"""
+        self.draw_gif_flag = False
+        """是否绘制gif"""
+
+        # 中间值
+        self.iter_num = 0
+        """迭代次数"""
+        self.cal_fit_num = 0
+        """真实适配度函数调用次数"""
+        self.unit_list = []
+        """种群列表"""
+        self.surr_factory = None
+        """代理模型工厂"""
+        self.ea_factory = None
+        """优化器(进化算法)工厂"""
         self.surr = None
+        """当前迭代使用的代理模型"""
         self.surr_history = []
+        """每次迭代使用的代理模型的列表"""
         self.fitfunction_name = None
+        """真实适配度函数名"""
         self.fitfunction = None
+        """真实适配度函数"""
         self.unit_new = []
-
+        """优化得到了预测最优个体"""
         self.value_best = None
+        """最优值"""
         self.value_best_history = []
+        """最优值历史"""
         self.position_best = None
+        """最优解"""
         self.time_cost = None
-
+        """时间消耗"""
 
     def run(self):
         self.start_time = time.time()
@@ -71,14 +107,17 @@ class SAEA_Base:
         self.print_result()
         self.save()
 
-
     def init(self):
+        # 初始化最优数据和历史数据
         self.unit_new = []
         self.unit_new_history = []
         self.cal_fit_num = 0
         self.iter_num = 0
         self.position_best = np.zeros(self.dim)
         self.value_best = -np.finfo(np.float64).max
+
+        self.init_surr_factory()
+        self.init_ea_factory()
         self.init_sampling()
 
     def iteration(self):
@@ -106,6 +145,21 @@ class SAEA_Base:
                 self.value_best = unit.fitness_true
                 self.position_best = unit.position.copy()
 
+    def init_surr_factory(self):
+        self.surr_factory = SurrogateModelFactory(self.surr_type, self.surr_setting)
+
+    def init_ea_factory(self):
+        ea_args = {
+            "dim": self.dim,
+            "size": self.pop_size,
+            "iter_max": self.iter_max,
+            "range_min_list": self.range_min_list,
+            "range_max_list": self.range_max_list,
+            "is_cal_max": True,
+            "silent": True,
+        }
+        self.ea_factory = Ea_Factory(self.ea_type, ea_args)
+
     def update(self):
         self.create_surrogate()
         self.optimize()
@@ -113,6 +167,7 @@ class SAEA_Base:
         self.update_status()
 
     def create_surrogate(self):
+        """构建代理模型"""
         X = []
         y = []
         for unit in self.unit_list:
@@ -124,28 +179,17 @@ class SAEA_Base:
         self.surr_history.append(self.surr)
 
     def optimize(self):
-        optimizer = self.get_optimizer()
-        optimizer.run()
+        """使用代理模型带入启发式算法进行优化，求最优解"""
+        optimizer, pop = self.get_optimizer()
+        optimizer.run(unit_list=pop)
         unit = self.get_best_unit(optimizer)
         self.unit_new = [unit]
         print("unit_new position: ", unit.position, " fitness: ", unit.fitness)
         if self.draw_gif_flag:
             optimizer.draw2_gif(10, True, f"SAEA_iter{self.iter_num}")
 
-    def get_optimizer(self):
-        ea = self.ea_factory.get_alg_with_surr(self.surr)
-        selected_unit = self.select()
-        ea.silence = True
-        ea.set_unit_list(selected_unit, self.surr)
-        return ea
-    
-    def get_best_unit(self, optimizer):
-        unit = self.unit_class()
-        unit.position = optimizer.position_best
-        unit.fitness = optimizer.value_best
-        return unit
-
     def merge(self):
+        """对预测最优解进行真实评估，合并新旧种群，更新最优解"""
         for ind in self.unit_new:
             ind.fitness_true = self.cal_fitfunction(ind.position)
             self.unit_list.append(ind)
@@ -153,20 +197,65 @@ class SAEA_Base:
                 self.value_best = ind.fitness_true
                 self.position_best = ind.position.copy()
         self.value_best_history.append(self.value_best)
+
+    def get_optimizer(self):
+        """获取优化器，并加上代理模型和种群"""
+        ea_args = self.get_ea_dynamic_args()
+        ea = self.ea_factory.create_with_surr(surr=self.surr, dynamic_args=ea_args)
+        ea_pop = self.init_ea_population(ea)
+        return ea, ea_pop
+    
+    def get_ea_dynamic_args(self):
+        """获取优化器的动态参数"""
+        return {}
+    
+    def get_best_unit(self, optimizer):
+        """获取优化器的最优解并适配到SAEA的unit类"""
+        unit = self.unit_class()
+        unit.position = optimizer.position_best
+        unit.fitness = optimizer.value_best
+        return unit
     
     def update_status(self):
+        """杂活"""
         pass
 
-    def select(self):
+    def init_ea_population(self, ea):
         """
-        选择数量为pop_size的个体
-        默认策略为选择fitness最大的个体
+        获取优化器的种群
+
+        默认选择策略: 选择fitness最优的ea.size个个体
+
+        个体的fitness值由代理模型预测
+        如果代理模型支持预测方差且进化算法使用方差，则预测每个个体的值和方差
         """
-        unit_copy = self.unit_list.copy()
-        unit_copy.sort(key=lambda x: x.fitness_true, reverse=True)
-        return unit_copy[:self.pop_size]
+        ea_pop = []
+        pos_list = []
+
+        idx = np.argsort([unit.fitness_true for unit in self.unit_list])[-ea.size:]
+        for i in range(ea.size):
+            unit = ea.unit_class()
+            unit.position = self.unit_list[idx[i]].position.copy()
+            ea_pop.append(unit)
+            pos_list.append(unit.position)
+
+        if ea.use_variances:
+            if self.surr.predict_value_variance:
+                value_list, var_list = self.surr.predict_value_variance(pos_list)
+                for i in range(len(ea_pop)):
+                    ea_pop[i].fitness = value_list[i]
+                    ea_pop[i].uncertainty = var_list[i]
+            else:
+                raise ValueError("代理模型不支持预测不确定性")
+        else:
+            value_list = self.surr.predict(pos_list)
+            for i in range(len(ea_pop)):
+                ea_pop[i].fitness = value_list[i]
+
+        return ea_pop
 
     def cal_fitfunction(self, position):
+        """计算真实适配度"""
         if self.fitfunction is None:
             value = 0
         else:
@@ -175,10 +264,10 @@ class SAEA_Base:
         return value
     
     def cal_surr_fitfunction(self, position):
+        """计算代理模型预测适配度"""
         if self.surr is None:
             value = 0
         else:
-            # value = self.surr.fit_one(position)
             value = self.surr.predict_one(position.reshape(1, -1))[0]
         return value
     

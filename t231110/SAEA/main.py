@@ -17,29 +17,37 @@ def main():
     # problem = "F72005"
     # problem = "Rosenbrock"
 
-    alg = "HSAEA"
+    # alg = "HSAEA"
     # alg = "DE_SAEA_Base"
     # alg = "FWA_SAEA"
     # alg = "SAEA"
     # alg = "GA_SAEA_Base"
     # alg = "PSO_SAEA_Base"
+    # alg = "FD_HSAEA"
+    # alg = "DD_HSAEA"
+    alg = "GD_HSAEA"
 
     dim = 2
 
     fit_max = 200
 
+    # 此项只有在SAEA和HSAEA作为alg时有效
     ea_types = [
         "FWA_Surr_Impl2",
+        # "DE_Surr_Base",
+        # "PSO_Surr_Base",
         "DE_Surr_Base",
     ]
 
     surr_types = [
         ["smt_kplsk", "smt_rbf"],
-        ["sklearn_gpr"]
+        ["smt_kplsk"]
     ]
 
-    exp = Exp(problem_name=problem, alg_name=alg, dim=dim, fit_max=fit_max, 
-              ea_types=ea_types, surr_types=surr_types)
+    debug = False
+
+    exp = Exp(debug=debug, problem_name=problem, alg_name=alg, dim=dim, 
+              fit_max=fit_max, ea_types=ea_types, surr_types=surr_types)
     exp.solve()
 
 main()

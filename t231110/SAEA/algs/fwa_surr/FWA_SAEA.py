@@ -1,6 +1,7 @@
 import sys
 sys.path.append(r"/home/robin/projects/t231101/t231110")
 
+from EA.algs.utils import Ea_Factory
 from SAEA.algs.base.SAEA_Base import SAEA_Base
 from SAEA.algs.fwa_surr.FWA_SAEA_Unit import FWA_SAEA_Unit
 
@@ -8,47 +9,25 @@ class FWA_SAEA(SAEA_Base):
     def __init__(self, dim, init_size, pop_size, surr_type, ea_type, fit_max,
                  iter_max, range_min_list, range_max_list, is_cal_max, surr_setting):
         ea_type = "FWA_Surr_Impl2"
-
         super().__init__(dim, init_size, pop_size, surr_type, ea_type, fit_max,
                          iter_max, range_min_list, range_max_list, is_cal_max, surr_setting)
 
         self.name = 'FWA_SAEA'
         self.unit_class = FWA_SAEA_Unit
-        self.m = 40
-        self.a = 0.2
-        self.b = 0.8
-        self.spec_num = 5
-        self.amplitude_max = range_max_list[0] * 0.6
-        self.all_list = []
 
-    def optimize(self):
-        optimizer = self.get_optimizer()
-        optimizer.run()
-        unit = self.get_best_unit(optimizer)
-        self.unit_new = [unit]
-        print("unit_new position: ", unit.position, " fitness: ", unit.fitness)
-        optimizer.draw2_gif(10, True, f"FWA_SAEA_iter{self.iter_num}")
+    def init_ea_factory(self):
+        ea_args = {
+            "dim": self.dim,
+            "size": self.pop_size,
+            "iter_max": self.iter_max,
+            "range_min_list": self.range_min_list,
+            "range_max_list": self.range_max_list,
+            "is_cal_max": True,
+            "silent": True,
+            'iter_max_main': self.fit_max - self.init_size,
+            'w_strategy_str': self.fws,
+        }
+        self.ea_factory = Ea_Factory(self.ea_type, ea_args)
 
-    def get_optimizer(self):
-        ea = self.ea_factory.get_alg_with_surr(self.surr)
-        ea.surr = self.surr
-        ea.size = len(self.unit_list)
-        ea.iter_num_main = self.iter_num
-        ea.iter_max_main = self.fit_max - self.init_size
-        ea.silence = True
-        ea.set_unit_list(self.unit_list)
-        return ea
-    
-    def get_best_unit(self, optimizer):
-        """添加去重功能"""
-        unit_list = optimizer.unit_list
-        unit_fwa = FWA_SAEA_Unit()
-        unit_list.sort(key=lambda x: x.value, reverse=True)
-        for unit in unit_list:
-            if self.is_exist(unit):
-                continue
-            else:
-                unit_fwa.position = unit.position_best
-                unit_fwa.fitness = unit.value_best
-                break
-        return unit_fwa
+    def get_ea_dynamic_args(self):
+        return {'iter_num_main': self.iter_num}

@@ -7,30 +7,45 @@ from algs.algorithm_fireworks.FWA_Unit import FWA_Unit
 from algs.base.alg import Algorithm_Impl
 
 class FWA_Base(Algorithm_Impl):
-    def __init__(self, dim, size, iter_max, range_min_list, range_max_list):
-        super().__init__(dim, size, iter_max, range_min_list, range_max_list)
+    def __init__(self, dim, size, iter_max, range_min_list, range_max_list,
+                 is_cal_max=True, fitfunction=None, silent=False,
+                 m=10, a=0.25, b=0.9, spec_num=5, amplitude_max=30):
+        super().__init__(dim, size, iter_max, range_min_list, range_max_list, 
+                         is_cal_max=is_cal_max, fitfunction=fitfunction, silent=silent)
+        # 算法信息
         self.name = 'FWA'
-        """生成正常火星的数量: m*b ~ m*a"""
-        self.m = 5
-        self.a = 0.25
-        self.b = 0.9
-        """生成特殊火星的数量"""
-        self.spec_num = 5
-        """烟花振幅最大值"""
-        self.amplitude_max = 30
-        """所有火星，包括烟花、正常火星、特殊火星"""
-        self.all_list = []
-        self.unit_list = []
         self.unit_class = FWA_Unit
 
-    def init(self):
-        super().init()
+        # 参数
+        self.m = m
+        """正常火星数量基数，生成正常火星的数量: m*b ~ m*a"""
+        self.a = a
+        """正常火星数量下限倍数"""
+        self.b = b
+        """正常火星数量上限倍数"""
+        self.spec_num = spec_num
+        """生成特殊火星的数量"""
+        self.amplitude_max = amplitude_max
+        """烟花振幅最大值"""
+
+        # 中间值
+        self.all_list = []
+        """所有火星，包括烟花、正常火星、特殊火星"""
         self.unit_list = []
-        for i in range(self.size):
-            unit = FWA_Unit()
-            unit.position = np.random.uniform(self.range_min_list, self.range_max_list, self.dim)
-            unit.fitness = self.cal_fitfunction(unit.position)
-            self.unit_list.append(unit)
+        """正常火星列表"""
+
+    def init(self, unit_list=[]):
+        """初始化unit_list和其中的position、fitness"""
+        super().init(unit_list=unit_list)
+        if len(unit_list) == 0:
+            self.unit_list = []
+            for i in range(self.size):
+                unit = FWA_Unit()
+                unit.position = np.random.uniform(self.range_min_list, self.range_max_list, self.dim)
+                unit.fitness = self.cal_fitfunction(unit.position)
+                self.unit_list.append(unit)
+        else:
+            self.unit_list = unit_list
     
     def update(self, iter):
         super().update(iter)

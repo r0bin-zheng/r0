@@ -7,22 +7,33 @@ from algs.base.alg import Algorithm_Impl
 from algs.differential_evolution.DE_Unit import DE_Unit
 
 class DE_Base(Algorithm_Impl):
-    def __init__(self, dim, size, iter_max, range_min_list, range_max_list):
-        super().__init__(dim, size, iter_max, range_min_list, range_max_list)
+    def __init__(self, dim, size, iter_max, range_min_list, range_max_list, 
+                 is_cal_max=True, fitfunction=None, silent=False,
+                 cross_rate=0.3, alter_factor=0.5):
+        super().__init__(dim, size, iter_max, range_min_list, range_max_list,
+                         is_cal_max, fitfunction, silent)
+        
+        # 算法信息
         self.name = 'DE'
-        self.cross_rate = 0.3
-        self.alter_factor = 0.5
-        self.unit_list = []
         self.unit_class = DE_Unit
 
-    def init(self):
-        super().init()
-        for i in range(self.size - len(self.unit_list)):
-            unit = DE_Unit()
-            unit.position = np.random.uniform(self.range_min_list, self.range_max_list)
+        # 参数
+        self.cross_rate = cross_rate
+        self.alter_factor = alter_factor
+
+    def init(self, unit_list=[]):
+        """初始化unit_list和其中的position、fitness、position_new"""
+        super().init(unit_list=unit_list)
+        if len(unit_list) == 0:
+            for i in range(self.size - len(self.unit_list)):
+                unit = DE_Unit()
+                unit.position = np.random.uniform(self.range_min_list, self.range_max_list)
+                unit.fitness = self.cal_fitfunction(unit.position)
+                self.unit_list.append(unit)
+        else:
+            self.unit_list = unit_list
+        for unit in self.unit_list:
             unit.position_new = unit.position.copy()
-            unit.fitness = self.cal_fitfunction(unit.position)
-            self.unit_list.append(unit)
 
     def update(self, iter):
         super().update(iter)

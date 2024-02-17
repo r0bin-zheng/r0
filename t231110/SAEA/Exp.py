@@ -11,8 +11,9 @@ from EA.algs.base.problem import get_problem_detail
 from SAEA.algs.get_alg import get_alg
 from SAEA.algs.selection_strategy.ss_mapping import get_selection_strategy
 
+
 class Exp:
-    def __init__(self, problem_name, alg_name, id=None,
+    def __init__(self, debug, problem_name, alg_name, id=None,
                  dim=2, init_size=100, pop_size=60,
                  fit_max=200, iter_max=60,
                  surr_types=[["smt_kplsk"], ["smt_kplsk"]],
@@ -29,6 +30,7 @@ class Exp:
                     "k": 2
                 }, fws="NegativeCorrelation"):
         self.id = self.get_id() if id is None else id
+        self.debug = debug
 
         # 问题
         self.problem_name = problem_name
@@ -69,8 +71,10 @@ class Exp:
     def init(self):
         # 获取当前文件所在目录
         os.chdir(os.path.dirname(os.path.abspath(__file__)))
-        os.makedirs(self.save_path, exist_ok=True)
-        os.chdir(self.save_path)
+
+        if self.debug == False:
+            os.makedirs(self.save_path, exist_ok=True)
+            os.chdir(self.save_path)
 
         lb, ub, dim, fobj = get_problem_detail(self.problem_name, ndim=self.dim)
         print(f'测试函数：{self.problem_name}')
@@ -104,13 +108,13 @@ class Exp:
                 self.alg = alg_class(self.dim, self.init_size, self.pop_size, self.surr_types, 
                                      self.ea_types, self.fit_max, self.iter_max,
                                      range_min_list, range_max_list, is_cal_max, surr_setting,
-                                     selection_strategy=selection_strategy, fws=self.fws)
+                                     selection_strategy_str=self.selection_strategy, fws=self.fws)
             else:
                 self.alg = alg_class(self.dim, self.init_size, self.pop_size, self.surr_types, 
                                  self.ea_types, self.fit_max, self.iter_max,
                                  range_min_list, range_max_list, is_cal_max, surr_setting,
-                                 selection_strategy=selection_strategy)
-            self.alg.selection_strategy_name = self.selection_strategy
+                                 selection_strategy_str=self.selection_strategy)
+            self.alg.selection_strategy_str = self.selection_strategy
         else:
             self.alg = alg_class(self.dim, self.init_size, self.pop_size, self.surr_types[0], 
                                  self.ea_types[0], self.fit_max, self.iter_max,

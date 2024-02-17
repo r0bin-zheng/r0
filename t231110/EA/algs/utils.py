@@ -41,21 +41,35 @@ class Ea_Factory:
     """
     算法工厂类
     """
-    def __init__(self, alg_name, dim, size, iter_max, range_min_list, range_max_list, is_cal_max):
+    def __init__(self, alg_name, static_args={}):
         self.alg_name = alg_name
-        self.dim = dim
-        self.size = size
-        self.iter_max = iter_max
-        self.range_min_list = range_min_list
-        self.range_max_list = range_max_list
-        self.is_cal_max = is_cal_max
+        self.static_args = static_args
+        self.alg_class = get_alg(alg_name)
 
-    def get_alg_with_surr(self, surr, range_min_list=None, range_max_list=None):
-        range_min_list = range_min_list if range_min_list is not None else self.range_min_list
-        range_max_list = range_max_list if range_max_list is not None else self.range_max_list
-        Alg_Class = get_alg(self.alg_name)
-        alg_obj = Alg_Class(self.dim, self.size, self.iter_max, range_min_list, range_max_list)
-        alg_obj.fitfunction = surr.predict_one
-        alg_obj.surr = surr
-        alg_obj.is_cal_max = True
-        return alg_obj
+    def create(self, dynamic_args={}):
+        """获取算法对象"""
+        args = self.static_args.copy()
+        args.update(dynamic_args)
+        return self.alg_class(**args)
+
+    def create_with_surr(self, surr, dynamic_args={}):
+        """获取带有代理模型的算法对象"""
+        ea = self.create(dynamic_args)
+        ea.surr = surr
+        ea.fitfunction = surr.predict_one
+        return ea
+
+        # Alg_Class = get_alg(self.alg_name)
+        # size = size if size is not None else self.size
+        # range_min_list = range_min_list if range_min_list is not None else self.range_min_list
+        # range_max_list = range_max_list if range_max_list is not None else self.range_max_list
+        
+        # alg_obj = Alg_Class(dim=self.dim, 
+        #                     size=self.size, 
+        #                     iter_max=self.iter_max, 
+        #                     range_max_list=range_min_list, 
+        #                     range_max_list=range_max_list,
+        #                     surr=surr)
+        # alg_obj.fitfunction = surr.predict_one
+        # alg_obj.is_cal_max = True
+        # return alg_obj

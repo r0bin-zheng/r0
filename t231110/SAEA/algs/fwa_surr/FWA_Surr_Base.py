@@ -18,31 +18,32 @@ class FWA_Surr(FWA_Base):
     alg.w_strategy = 2
     ```
     """
-    def __init__(self, dim, size, iter_max, range_min_list, range_max_list, 
-                 w_strategy_str="NegativeCorrelation", alpha=0.6, beta=0.5, gamma=0.3, delta=0.5):
-        super().__init__(dim, size, iter_max, range_min_list, range_max_list)
+    def __init__(self, dim, size, iter_max, range_min_list, range_max_list,
+                 is_cal_max=True, fitfunction=None, silent=False,
+                 m=10, a=0.25, b=0.9, spec_num=5, amplitude_max=30,
+                 surr=None, w_strategy_str="NegativeCorrelation", 
+                 alpha=0.6, beta=0.5, gamma=0.3, delta=0.5, 
+                 iter_num_main=None, iter_max_main=50):
+        super().__init__(dim, size, iter_max, range_min_list, range_max_list,
+                         is_cal_max=is_cal_max, fitfunction=fitfunction, silent=silent,
+                         m=m, a=a, b=b, spec_num=spec_num, amplitude_max=amplitude_max)
+        # 算法信息
         self.name = 'FWA_Surr'
-        self.surr = None
+        self.use_variances = True
+        """用于指示该算法是否使用代理模型的不确定性"""
+
+        # 参数
+        self.surr = surr
         """代理模型"""
-
-        # 算法参数
-        self.iter_num = 0
-        """循环迭代次数"""
-        self.iter_num_main = None
-        """主循环迭代次数"""
-        self.iter_max_main = None
-        """主循环迭代次数最大值"""
         self.w_strategy_str = w_strategy_str
-        """权重因子计算策略字符串"""
-        self.w_strategy = None
         """
-        权重因子计算策略
+        权重因子计算策略字符串
 
-        类型：int
-        - 1: 随迭代次数指数衰减
-        - 2: 随迭代次数线性衰减
-        - 3: 和皮尔逊相关系数呈负相关
-        - 4: 固定不确定性的权重
+        类型：str
+        - "ExponentialDecay": 随迭代次数指数衰减
+        - "LinearDecay": 随迭代次数线性衰减
+        - "NegativeCorrelation": 和皮尔逊相关系数呈负相关
+        - "FixedUncertainty": 固定不确定性的权重
         """
         self.alpha = alpha
         """权重因子计算策略1的参数，控制基于指数下降的不确定性的权重"""
@@ -55,8 +56,24 @@ class FWA_Surr(FWA_Base):
         """
         self.delta = delta
         """权重因子计算策略4的参数，固定不确定性的权重"""
+        self.iter_num_main = iter_num_main
+        """主循环迭代次数"""
+        self.iter_max_main = iter_max_main
+        """主循环迭代次数最大值"""
 
-        # 中间值，非参数
+        # 运行中间值
+        self.w_strategy = None
+        """
+        权重因子计算策略
+
+        类型：int
+        - 1: 随迭代次数指数衰减
+        - 2: 随迭代次数线性衰减
+        - 3: 和皮尔逊相关系数呈负相关
+        - 4: 固定不确定性的权重
+        """
+        self.iter_num = 0
+        """循环迭代次数"""
         self.WT = None
         """权重因子"""
         self.pop_fitness_max = None
@@ -68,16 +85,13 @@ class FWA_Surr(FWA_Base):
         self.pop_uncertainty_min = None
         """该变量用于当前种群不确定性最小值"""
 
-        self.use_variances = True
-        """用于指示该算法是否使用代理模型的不确定性"""
-
-    def init(self):
-        """初始化种群，由于SAEA框架中的一部分，初始化种群工作将在主算法完成"""
+    def init(self, unit_list=[]):
+        super().init(unit_list=unit_list)
         self.set_w_strategy()
-        self.position_best = np.zeros(self.dim)
-        self.value_best_history = []
-        self.position_best_history = []
-        self.value_best = -np.finfo(np.float64).max
+    #     self.position_best = np.zeros(self.dim)
+    #     self.value_best_history = []
+    #     self.position_best_history = []
+    #     self.value_best = -np.finfo(np.float64).max
     
     def set_w_strategy(self, w_strategy_str=None):
         """初始化不确定性权重计算策略"""

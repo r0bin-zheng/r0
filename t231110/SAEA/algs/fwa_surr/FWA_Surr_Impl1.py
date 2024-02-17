@@ -1,11 +1,5 @@
 """
 代理辅助的烟花算法实现1
-- 添加了EFWA的振幅下限
-- 添加了EFWA的位移方法，每个维度在振幅内随机（FWA_Base已实现）
-- 添加了dynFWA的动态振幅
-- 修改突变算子，不再生成在原点附近，服从Levy分布
-- 修改选择策略为：精英选择、其他轮盘赌
-- 修改映射策略为：镜像法
 """
 import sys
 sys.path.append(r"/home/robin/projects/t231101/t231110")
@@ -18,25 +12,58 @@ from SAEA.utils.common1 import avoid_duplicates_roulette
 
 
 class FWA_Surr_Impl1(FWA_Surr):
-    def __init__(self, dim, size, iter_max, range_min_list, range_max_list, 
-                 alpha=0.6, beta=0.5, gamma=0.3, delta=0.5):
-        super().__init__(dim, size, iter_max, range_min_list, range_max_list, alpha, beta, gamma, delta)
+    """
+    FWA_Surr改进1
+    - 添加了EFWA的振幅下限
+    - 添加了EFWA的位移方法，每个维度在振幅内随机(FWA_Base已实现)
+    - 添加了dynFWA的动态振幅
+    - 修改突变算子，不再生成在原点附近，服从Levy分布
+    - 修改选择策略为：精英选择、其他轮盘赌
+    - 修改映射策略为：镜像法
+    """
+    def __init__(self, dim, size, iter_max, range_min_list, range_max_list,
+                 is_cal_max=True, fitfunction=None, silent=False,
+                 m=10, a=0.25, b=0.9, spec_num=5, amplitude_max=30,
+                 surr=None, w_strategy_str="NegativeCorrelation", 
+                 alpha=0.6, beta=0.5, gamma=0.3, delta=0.5, 
+                 iter_num_main=None, iter_max_main=50,
+                 expansion_factor=1.2, reduction_factor=0.9):
+        super().__init__(dim, size, iter_max, range_min_list, range_max_list,
+                         is_cal_max, fitfunction, silent, m, a, b, spec_num, amplitude_max,
+                         surr, w_strategy_str, alpha, beta, gamma, delta, 
+                         iter_num_main, iter_max_main)
+        
+        # 算法信息
         self.name = 'FWA_Surr_Impl1'
-        """烟花振幅最小值"""
-        self.amplitude_min = None
-        self.amplitude_min_init = (range_max_list[0] - range_min_list[0]) * 0.02
-        self.amplitude_min_final = (range_max_list[0] - range_min_list[0]) * 0.001
-        """Core Firework 核心烟花，指当前的全局最优烟花"""
-        self.CF = None
-        self.CF_amplitude = None
-        self.expansion_factor = 1.2
+
+        # 参数
+        self.expansion_factor = expansion_factor
         """CF振幅扩张因子"""
-        self.reduction_factor = 0.9
+        self.reduction_factor = reduction_factor
         """CF振幅下降因子"""
+
+        # 运行中间值
+        self.amplitude_min = None
+        """烟花振幅最小值"""
+        self.amplitude_min_init = (range_max_list[0] - range_min_list[0]) * 0.02
+        """振幅下限初始值"""
+        self.amplitude_min_final = (range_max_list[0] - range_min_list[0]) * 0.001
+        """振幅下限最终值"""
+        self.CF = None
+        """Core Firework 核心烟花，指当前的全局最优烟花"""
+        self.CF_amplitude = None
+        """核心烟花振幅"""
         
 
-    def init(self):
-        super().init()
+    def init(self, unit_list=[]):
+        """
+        初始化FWA_Surr_Impl1，初始化内容:
+        - unit_list和其中的position、fitness
+        - amplitude_min 振幅下限
+        - CF 核心烟花
+        - CF_amplitude 核心烟花振幅
+        """
+        super().init(unit_list=unit_list)
 
         # 初始化最小振幅
         self.amplitude_min = self.amplitude_min_init

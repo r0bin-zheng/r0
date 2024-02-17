@@ -10,6 +10,7 @@ class GA_SAEA_Base(SAEA_Base):
         ea_type = "GA_Surr_Base"
         super().__init__(dim, init_size, pop_size, surr_type, ea_type, fit_max,
                          iter_max, range_min_list, range_max_list, is_cal_max, surr_setting)
+        
         self.name = 'GA_SAEA_Base'
         self.unit_class = GA_SAEA_Unit
         
