@@ -24,20 +24,25 @@ def get_all_exp_settings():
     # ]
     problems = [
         # "F62005",
-        "Ackley01",
+        # "Ackley01",
         # "F72005",
+        "F32017",
     ]
 
     algs = [
-        "FD_HSAEA",
+        # "FD_HSAEA",
+        # "DD_HSAEA",
+        "PD_HSAEA",
+        # "GD_HSAEA",
         # "HSAEA",
         # "DE_SAEA_Base",
         # "FWA_SAEA",
         # "SAEA",
+        # "FD_HSAEA",
     ]
 
     dims = [
-        2,
+        30,
     ]
 
     fit_max = [
@@ -46,17 +51,20 @@ def get_all_exp_settings():
 
     ea_types = [
         "FWA_Surr_Impl2+DE_Surr_Base",
-        "DE_Surr_Base+DE_Surr_Base",
-        "PSO_Surr_Base+DE_Surr_Base",
-        "GA_Surr_Base+DE_Surr_Base",
+        # "DE_Surr_Base+DE_Surr_Base",
+        # "PSO_Surr_Base+DE_Surr_Base",
+        # "GA_Surr_Base+DE_Surr_Base",
     ]
 
     surr_types = [
+        # "smt_rbf+smt_rbf@smt_kplsk",
+        # "smt_kplsk+smt_rbf@smt_rbf",
+        # "smt_rbf+smt_rbf@smt_rbf",
         # "smt_kplsk+smt_rbf@sklearn_gpr",
         # "smt_kplsk+smt_rbf@smt_rbf",
-        # "smt_kplsk+smt_rbf@smt_kplsk",
+        "smt_kplsk+smt_rbf@smt_kplsk",
         # "smt_kplsk+smt_rbf@smt_kriging",
-        "smt_kplsk+smt_kriging@smt_kplsk",
+        # "smt_kplsk+smt_kriging@smt_kplsk",
         # "smt_kplsk+sklearn_gpr@smt_kplsk",
         # "smt_kplsk+smt_rbf@smt_kplsk",
         # "smt_kplsk+sklearn_gpr@smt_kplsk+smt_rbf",
@@ -66,16 +74,16 @@ def get_all_exp_settings():
         # "JustGlobal",
         # "JustLocal",
         # "HalfHalf",
-        # "MixedLinearly",
-        "MixedNonlinearly",
+        "MixedLinearly",
+        # "MixedNonlinearly",
     ]
 
     fwa_wt_strategies = [
         # "NoUncertainty",
         # "Constant",
         # "LinearDecrease",
-        # "ExponentialDecrease",
-        "NegativeCorrelation",
+        "ExponentialDecrease",
+        # "NegativeCorrelation",
     ]
 
     return itertools.product(problems, algs, dims, fit_max, surr_types,

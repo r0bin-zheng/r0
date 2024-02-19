@@ -189,31 +189,6 @@ class HSAEA_Base(SAEA_Base):
             }
         else:
             return {}
-
-    # def init_ea_population(self, pop, ea):
-    #     """初始化进化算法种群"""
-    #     for i in range(len(pop)):
-    #         if i > ea.size:
-    #             break
-    #         ind = pop[i]
-    #         unit = ea.unit_class()
-        #     unit.position = ind.position.copy()
-        #     unit.fitness = ind.fitness
-        #     ea.unit_list.append(unit)
-
-        # # 预测每个个体的值和方差
-        # pos_list = [unit.position for unit in ea.unit_list]
-        # if self.surr.predict_value_variance and ea.use_variances:
-        #     # 如果代理模型支持预测方差且进化算法使用方差，则预测每个个体的值和方差
-        #     value_list, var_list = self.surr.predict_value_variance(pos_list)
-        #     for i in range(len(ea.unit_list)):
-        #         ea.unit_list[i].fitness = value_list[i]
-        #         ea.unit_list[i].uncertainty = var_list[i]
-        # else:
-        #     # 否则只预测每个个体的值
-        #     value_list = self.surr.predict(pos_list)
-        #     for i in range(len(ea.unit_list)):
-        #         ea.unit_list[i].fitness = value_list[i]
     
     def get_best_unit(self, optimizer):
         """添加去重功能"""
@@ -264,7 +239,9 @@ class HSAEA_Base(SAEA_Base):
     def toStr(self):
         # 打印选择策略的类名称
         select_strategy_class = self.selection_strategy.__class__.__name__
-        str = super().toStr()
+
+        str = f"--- HSAEA Base ---\n"
+        str += super().toStr()
         str += f"use_local: {self.use_local}\n"
         str += f"surr_type_global: {self.surr_type_global}\n"
         str += f"surr_type_local: {self.surr_type_local}\n"
@@ -277,11 +254,11 @@ class HSAEA_Base(SAEA_Base):
         str += f"selection_strategy: {select_strategy_class}\n"
         str += "\n"
 
-        str += "global_ea_info\n"
+        str += "--- Global EA ---\n"
         str += self.global_ea_info
         str += "\n"
 
-        str += "local_ea_info\n"
+        str += "--- Local EA ---\n"
         str += self.local_ea_info
 
         return str

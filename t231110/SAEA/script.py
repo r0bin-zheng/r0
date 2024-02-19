@@ -39,7 +39,7 @@ def get_surr_types(surr_str):
 
 surr_types = get_surr_types(surr)
 print(surr_types)
-exp = Exp(problem_name=problem, alg_name=alg, id=id, dim=dim, fit_max=fit_max, 
+exp = Exp(debug=False, problem_name=problem, alg_name=alg, id=id, dim=dim, fit_max=fit_max, 
           surr_types=surr_types, selection_strategy=selection_strategy,
           ss_args=None, fws=fwa_wt_strategy)
 exp.solve()

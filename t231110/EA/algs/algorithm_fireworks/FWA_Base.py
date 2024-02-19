@@ -9,7 +9,7 @@ from algs.base.alg import Algorithm_Impl
 class FWA_Base(Algorithm_Impl):
     def __init__(self, dim, size, iter_max, range_min_list, range_max_list,
                  is_cal_max=True, fitfunction=None, silent=False,
-                 m=10, a=0.25, b=0.9, spec_num=5, amplitude_max=30):
+                 m=5, a=0.25, b=0.9, spec_num=5, amplitude_max=30):
         super().__init__(dim, size, iter_max, range_min_list, range_max_list, 
                          is_cal_max=is_cal_max, fitfunction=fitfunction, silent=silent)
         # 算法信息

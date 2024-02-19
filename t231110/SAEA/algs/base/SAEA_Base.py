@@ -317,7 +317,10 @@ class SAEA_Base:
             f.write(f"value_best: {self.value_best}\n")
             f.write(f"position_best: {self.position_best}\n")
             f.write(f"time_cost: {self.time_cost}\n")
-            f.write(f"pop:\n")
+            f.write("\nvalue_best history:\n")
+            for i in range(len(self.value_best_history)):
+                f.write(f"{i} {self.value_best_history[i]}\n")
+            f.write("\npop:\n")
             for i in range(len(self.unit_list)):
                 f.write(f"#{i} {self.unit_list[i].position} -- {self.unit_list[i].fitness_true if self.is_cal_max else -self.unit_list[i].fitness_true}\n")
         print("save result at result.txt")

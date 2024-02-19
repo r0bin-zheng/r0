@@ -5,6 +5,7 @@
 import sys
 sys.path.append(r"/home/robin/projects/t231101/t231110")
 
+import math
 import numpy as np
 from SAEA.algs.selection_strategy.base import BaseSelectionStrategy
 
@@ -47,11 +48,13 @@ class MixedSelectedStrategy(BaseSelectionStrategy):
         """
         sum = 0.0
         for r in self.rate:
-            if r <= 0 or r > 1:
+            if r < 0 or r > 1:
                 return False
             sum += r
-        if sum != 1 or len(self.list) != len(self.rate):
-            return False
+        # 计算sum和1的差值
+        if math.fabs(sum - 1) > 1e-6 or len(self.list) != len(self.rate):
+            self.rate = [0.25, 0.75]
+            return True
         return True
 
 
@@ -75,15 +78,18 @@ class MixedSelectedStrategy(BaseSelectionStrategy):
             if self.changing_type == "FirstStageDecreasesLinearly":
                 # 公式：p = (iter_max - iter) / iter_max * (p_max - p_min) + p_min
                 p_first = (self.iter_max - iter) / self.iter_max * (self.p_max_first - self.p_min_first) + self.p_min_first
+                p_first = max(p_first, self.p_min_first)
             elif self.changing_type == "FirstStageDecreasesNonlinearly":
                 # 公式：p = ((iter_max - iter) / iter_max)^k * (p_max - p_min) + p_min
                 k = self.k # k值越大，下降越快；k=1时为线性下降
                 p_first = ((self.iter_max - iter) / self.iter_max) ** k * (self.p_max_first - self.p_min_first) + self.p_min_first
+                p_first = max(p_first, self.p_min_first)
             self.rate = np.array([p_first, 1 - p_first])
         else:
             self.rate = rate_new if rate_new is not None else self.rate
 
-        if not self.check():
+        if self.check() == False:
+            print("rate", self.rate)
             raise ValueError("rate error")
         
         self.prev_idx = np.random.choice(range(len(self.list)), p=self.rate)

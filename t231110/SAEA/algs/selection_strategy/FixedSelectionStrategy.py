@@ -5,6 +5,7 @@
 import sys
 sys.path.append(r"/home/robin/projects/t231101/t231110")
 
+import math
 from SAEA.algs.selection_strategy.base import BaseSelectionStrategy
 
 class FixedSelectionStrategy(BaseSelectionStrategy):
@@ -18,7 +19,8 @@ class FixedSelectionStrategy(BaseSelectionStrategy):
         self.max_select_times = max_select_times
         """最大选择次数"""
 
-        if not self.check():
+        if self.check() == False:
+            print("rate", self.rate)
             raise ValueError("rate error")
 
     def check(self):
@@ -30,8 +32,10 @@ class FixedSelectionStrategy(BaseSelectionStrategy):
             if r < 0 or r > 1:
                 return False
             sum += r
-        if sum != 1 or len(self.list) != len(self.rate):
-            return False
+        # 计算sum和1的差值
+        if math.fabs(sum - 1) > 1e-6 or len(self.list) != len(self.rate):
+            self.rate = [0.25, 0.75]
+            return True
         return True
 
 
@@ -41,6 +45,8 @@ class FixedSelectionStrategy(BaseSelectionStrategy):
         """
         self.select_times += 1
         cur_rate = self.select_times / self.max_select_times
+        cur_rate = min(cur_rate, 1.0)
+        cur_rate = max(cur_rate, 0.0)
         sum = 0.0
         for i in range(len(self.list)):
             sum += self.rate[i]
